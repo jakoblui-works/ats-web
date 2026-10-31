@@ -1,0 +1,12 @@
+# Changes here will be overwritten by Copier; never edit by hand.
+_commit: v0.2.1
+_src_path: gh:jakoblui-works/web-template
+api_tag: ats
+app_name: ats-web
+description: See what a simple ATS would extract from your CV
+host: ats.jakoblui.com
+palette: amber
+subdomain: ats
+theme_toggle: true
+title: Jakob Lui - ats-web
+use_api: true

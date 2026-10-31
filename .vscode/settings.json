@@ -1,0 +1,19 @@
+{
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true,
+    "src/api/generated/**": true
+  },
+  "search.exclude": {
+    "**/routeTree.gen.ts": true,
+    "src/api/generated/**": true
+  },
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true,
+    "src/api/generated/**": true
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "typescript.suggest.autoImports": true,
+  "typescript.preferences.includePackageJsonAutoImports": "on"
+}
