@@ -17,7 +17,7 @@ if (!template.includes(placeholder)) {
 }
 
 // The title is HTML-escaped where it goes into `index.html`, so it is here too.
-const notFoundTitle = "Page not found - Jakob Lui - ats-web";
+const notFoundTitle = "Page not found - Jakob Lui";
 
 /** The 404 page's head: its own title, without the home page's description, canonical and previews. */
 const notFoundHead = (html) =>

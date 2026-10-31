@@ -1,6 +1,6 @@
 # ats-web
 
-See what a simple ATS would extract from your CV Served at ats.jakoblui.com. Made from `web-template` (Copier); `.copier-answers.yml` records the version.
+Upload a CV as a PDF and see what a simple parser would extract from it. Served at ats.jakoblui.com. Made from `web-template` (Copier); `.copier-answers.yml` records the version.
 
 ## Commands
 ```sh
