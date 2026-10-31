@@ -5,7 +5,9 @@ import { defineConfig } from "orval";
 export default defineConfig({
   ats: {
     input: {
-      target: "https://jakoblui.com/api/openapi.json",
+      // Local api while the ats routes aren't in prod. Goes back to
+      // https://jakoblui.com/api/openapi.json before the first push.
+      target: "http://localhost:8000/openapi.json",
       filters: { tags: ["ats"] },
     },
     output: {

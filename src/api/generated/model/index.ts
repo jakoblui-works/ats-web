@@ -5,4 +5,15 @@
  * OpenAPI spec version: 0.1.0
  */
 
-
+export * from './atsUploadBody.zod';
+export * from './bodyAtsUpload.zod';
+export * from './contact.zod';
+export * from './education.zod';
+export * from './errorResponse.zod';
+export * from './experience.zod';
+export * from './hTTPValidationError.zod';
+export * from './parseResult.zod';
+export * from './parseStatusResponse.zod';
+export * from './section.zod';
+export * from './uploadStartedResponse.zod';
+export * from './validationError.zod';
