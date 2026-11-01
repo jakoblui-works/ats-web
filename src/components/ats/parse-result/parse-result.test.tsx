@@ -179,3 +179,20 @@ describe("ParseResult shows name, employer, and education", () => {
     expect(screen.getByText("No education found")).toBeInTheDocument();
   });
 });
+
+describe("ParseResult summary", () => {
+  it("sits right under the verdict, and the readable verdict points to it", () => {
+    render(<ParseResult result={readableResult} />);
+    const summary = screen.getByRole("heading", { name: "What it picked out" });
+    const verdict = screen.getByRole("heading", { level: 2 });
+    expect(verdict.compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText(/Its text came through/)).toBeInTheDocument();
+  });
+
+  it("gives a readable result with something missing no pass tone, and says so", () => {
+    const missing = { ...readableResult, contact: { ...readableResult.contact, phone: null } };
+    const { container } = render(<ParseResult result={missing} />);
+    expect(screen.getByText(/some details weren't picked out/)).toBeInTheDocument();
+    expect(container.querySelector("[class*=emerald]")).toBeNull();
+  });
+});

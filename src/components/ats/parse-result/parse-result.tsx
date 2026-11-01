@@ -2,6 +2,7 @@ import { CircleCheckIcon, EyeOffIcon, TriangleAlertIcon, type LucideIcon } from 
 import { useEffect, useRef, type ReactNode } from "react";
 
 import type { ParseResultOutput } from "@/api/generated/model";
+import { ParseSummary, summaryRows } from "@/components/ats/parse-summary/parse-summary";
 import { TextSearch } from "@/components/ats/text-search/text-search";
 import { cn } from "@/lib/utils";
 
@@ -14,9 +15,9 @@ type Warning = Result["warnings"][number];
 const VERDICTS: Record<Visibility, { icon: LucideIcon; tone: string; title: string; text: string }> = {
   readable: {
     icon: CircleCheckIcon,
-    tone: "text-emerald-600 dark:text-emerald-400",
-    title: "A simple parser would see this",
-    text: "Your CV came through as text. Check below that nothing is missing or out of place.",
+    tone: "text-muted-foreground",
+    title: "A simple parser can read this text",
+    text: "Its text came through. Here's what a simple parser picked out of it.",
   },
   partial: {
     icon: TriangleAlertIcon,
@@ -76,7 +77,19 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
     else onFocusKept?.();
     // On arrival only.
   }, []);
-  const verdict = VERDICTS[result.visibility];
+  const allFound = summaryRows(result).every((row) => row.found);
+  const base = VERDICTS[result.visibility];
+  // A readable CV with details missing isn't a pass: no green, and the line says so.
+  const verdict =
+    result.visibility !== "readable"
+      ? base
+      : allFound
+        ? {
+            ...base,
+            tone: "text-emerald-600 dark:text-emerald-400",
+            text: "Its text came through, and a simple parser picked out all of the details below.",
+          }
+        : { ...base, text: "Its text came through, but some details weren't picked out. See the list below." };
   const Icon = verdict.icon;
   const { contact } = result;
 
@@ -93,6 +106,8 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
           </p>
         </div>
       </div>
+
+      <ParseSummary result={result} />
 
       {result.warnings.length > 0 && (
         <Section title="Things to look at">

@@ -41,7 +41,7 @@ export const Processing: Story = {
 export const Readable: Story = {
   args: { parse: { status: "done", result: readableResult } },
   play: async ({ args, canvas }) => {
-    const heading = canvas.getByRole("heading", { name: /a simple parser would see this/i });
+    const heading = canvas.getByRole("heading", { name: /a simple parser can read this text/i });
     await expect(heading).toBeVisible();
     // Focus moves to the verdict when the result arrives.
     await expect(heading).toHaveFocus();
@@ -58,6 +58,8 @@ export const Partial: Story = {
   args: { parse: { status: "done", result: partialResult } },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("heading", { name: /only part of this/i })).toBeVisible();
+    await expect(canvas.getByRole("heading", { name: "What it picked out" })).toBeVisible();
+    await expect(canvas.getAllByText("Not found").length).toBeGreaterThan(0);
     await expect(canvas.getByText("Things to look at")).toBeVisible();
     // Missing fields are shown as missing.
     await expect(canvas.getAllByText("Not found").length).toBeGreaterThan(0);

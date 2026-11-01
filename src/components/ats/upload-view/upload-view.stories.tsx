@@ -24,6 +24,8 @@ export const Idle: Story = {
   play: async ({ args, canvas, canvasElement }) => {
     await expect(canvas.getByRole("button", { name: "Upload CV" })).toBeVisible();
     await expect(canvas.getByText(/deleted right after/)).toBeVisible();
+    await expect(canvas.getByText(/English and Danish/)).toBeVisible();
+    await expect(canvas.getByText("Drop a PDF here or")).toBeVisible();
 
     const file = new File(["%PDF-1.4"], "cv.pdf", { type: "application/pdf" });
     await userEvent.upload(canvasElement.querySelector<HTMLInputElement>("input[type=file]")!, file);
@@ -34,8 +36,9 @@ export const Idle: Story = {
 /** A file is being dragged over the page. */
 export const Dragging: Story = {
   args: { dragging: true },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvas, canvasElement }) => {
     await expect(canvasElement.querySelector("[data-dragging]")).not.toBeNull();
+    await expect(canvas.getByText("Drop your PDF to read it")).toBeVisible();
   },
 };
 

@@ -37,11 +37,14 @@ export const partialResult: ParseResultOutput = {
   visibility: "partial",
   character_count: 640,
   contact: { name: null, email: null, phone: null, location: null, links: [] },
+  experience: [],
+  experience_months: null,
+  education: [],
   sections: [
     { kind: "other", heading: "Work history", text: "Senior Engineer 2019" },
     { kind: "other", heading: "Interests", text: "" },
   ],
-  warnings: ["little_text", "missing_contact"],
+  warnings: ["little_text", "missing_contact", "missing_sections"],
 };
 
 export const invisibleResult: ParseResultOutput = {
