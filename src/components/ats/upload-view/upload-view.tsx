@@ -43,7 +43,7 @@ export const UploadView = ({ onFile, dragging = false, focusButton = false }: Up
         onClick={() => inputRef.current?.click()}
         className={cn(
           "flex w-full cursor-pointer flex-col items-center gap-4 rounded-xl border-2 border-dashed px-4 py-10 sm:py-14 motion-safe:transition-colors",
-          dragging ? "border-primary bg-primary/10" : "border-border hover:bg-surface",
+          dragging ? "border-primary bg-primary/10" : "border-foreground/15 bg-foreground/5 hover:bg-foreground/10",
         )}
       >
         <UploadIcon
