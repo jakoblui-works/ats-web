@@ -7,10 +7,10 @@ export const readableResult: ParseResultOutput = {
   character_count: 3120,
   text: "Alex Example\nalex@example.com\n+00 000 000 000\n\nWork history\nSenior Engineer, Example Co\n2019 - 2024\n\nEducation\nBSc Computing, Example University\n2012 - 2015\n\nSkills\nPython, SQL",
   contact: {
-    name: "Alex Example",
+    name: null,
     email: "alex@example.com",
     phone: "+00 000 000 000",
-    location: "Exampleville",
+    location: null,
     links: ["https://example.com/alex"],
   },
   sections: [
@@ -18,11 +18,9 @@ export const readableResult: ParseResultOutput = {
     { kind: "education", heading: "Education", text: "BSc Computing, Example University\n2012 - 2015" },
     { kind: "skills", heading: "Skills", text: "Python, SQL" },
   ],
-  experience: [{ title: "Senior Engineer", company: "Example Co", start: "2019", end: "2024" }],
-  education: [
-    { institution: "Example University", qualification: "BSc Computing", start: "2012", end: "2015" },
-  ],
-  skills: ["Python", "SQL"],
+  experience: [],
+  education: [],
+  skills: [],
   warnings: [],
 };
 
@@ -30,12 +28,12 @@ export const partialResult: ParseResultOutput = {
   ...readableResult,
   visibility: "partial",
   character_count: 640,
-  contact: { name: "Alex Example", email: null, phone: null, location: null, links: [] },
-  experience: [{ title: "Senior Engineer", company: null, start: "2019", end: null }],
-  education: [],
-  skills: [],
-  sections: [{ kind: "other", heading: "Work history", text: "Senior Engineer 2019" }],
-  warnings: ["scrambled_order", "missing_contact", "missing_sections", "unparsed_dates"],
+  contact: { name: null, email: null, phone: null, location: null, links: [] },
+  sections: [
+    { kind: "other", heading: "Work history", text: "Senior Engineer 2019" },
+    { kind: "other", heading: "Interests", text: "" },
+  ],
+  warnings: ["little_text", "missing_contact"],
 };
 
 export const invisibleResult: ParseResultOutput = {

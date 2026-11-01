@@ -13,7 +13,7 @@ const VERDICTS: Record<Visibility, { icon: LucideIcon; tone: string; title: stri
     icon: CircleCheckIcon,
     tone: "text-emerald-600 dark:text-emerald-400",
     title: "A simple parser would see this",
-    text: "Your CV came through as text. Check below that nothing it found is missing or out of place.",
+    text: "Your CV came through as text. Check below that nothing is missing or out of place.",
   },
   partial: {
     icon: TriangleAlertIcon,
@@ -25,18 +25,17 @@ const VERDICTS: Record<Visibility, { icon: LucideIcon; tone: string; title: stri
     icon: EyeOffIcon,
     tone: "text-destructive",
     title: "A simple parser would see nothing here",
-    text: "No text could be read from this file. It may be a scan or an image of a page, which a simple parser can't read.",
+    text: "No readable text could be found in this file. It may be a scan or an image of a page, or use a font a simple parser can't decode.",
   },
 };
 
 const WARNING_MESSAGES: Record<Warning, string> = {
-  no_text_layer: "The file has no text layer, only images, so there is nothing to extract.",
+  no_text_layer: "No readable text could be found. The pages may be images, or use a font a parser can't decode.",
   little_text: "Very little text could be read from the file.",
   scrambled_order:
     "The text came out in a jumbled order, which often happens with columns, tables or text boxes.",
-  missing_contact: "No name or contact details could be found.",
-  missing_sections:
-    "No clear section headings could be found, such as experience, education or skills.",
+  missing_contact: "No email address or phone number could be found.",
+  missing_sections: "No experience or education heading could be found.",
   unparsed_dates: "Some dates could not be read.",
 };
 
@@ -56,17 +55,6 @@ const Field = ({ label, value }: { label: string; value: string | null }) => (
     <dt className="w-24 shrink-0 text-sm text-muted-foreground">{label}</dt>
     <dd className="min-w-0 break-words">{value || <Missing />}</dd>
   </div>
-);
-
-const dates = (start: string | null, end: string | null) =>
-  start || end ? `${start ?? "?"} to ${end ?? "?"}` : null;
-
-const Entry = ({ primary, secondary, period }: { primary: string | null; secondary: string | null; period: string | null }) => (
-  <li className="flex flex-col gap-0.5 rounded-md border p-3">
-    <span className="font-medium break-words">{primary || <Missing />}</span>
-    <span className="break-words text-sm">{secondary || <Missing />}</span>
-    <span className="text-sm text-muted-foreground">{period || <Missing>No dates found</Missing>}</span>
-  </li>
 );
 
 type ParseResultProps = {
@@ -97,8 +85,8 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
           <h2 ref={headingRef} tabIndex={-1} className="text-xl font-semibold outline-none">{verdict.title}</h2>
           <p className="text-muted-foreground">{verdict.text}</p>
           <p className="text-sm text-muted-foreground">
-            {result.page_count} {result.page_count === 1 ? "page" : "pages"},{" "}
-            {result.character_count} characters read.
+            {result.page_count} {result.page_count === 1 ? "page" : "pages"}
+            {result.visibility !== "invisible" && `, ${result.character_count} characters read`}.
           </p>
         </div>
       </div>
@@ -115,10 +103,8 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
 
       <Section title="Contact">
         <dl className="flex flex-col gap-2">
-          <Field label="Name" value={contact.name} />
           <Field label="Email" value={contact.email} />
           <Field label="Phone" value={contact.phone} />
-          <Field label="Location" value={contact.location} />
           <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
             <dt className="w-24 shrink-0 text-sm text-muted-foreground">Links</dt>
             <dd className="min-w-0">
@@ -138,68 +124,34 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
         </dl>
       </Section>
 
-      <Section title="Experience">
-        {result.experience.length > 0 ? (
+      <Section title="Sections">
+        {result.sections.length > 0 ? (
           <ul className="flex flex-col gap-2">
-            {result.experience.map((item, index) => (
-              <Entry
-                key={index}
-                primary={item.title}
-                secondary={item.company}
-                period={dates(item.start, item.end)}
-              />
-            ))}
-          </ul>
-        ) : (
-          <Missing>No experience found</Missing>
-        )}
-      </Section>
-
-      <Section title="Education">
-        {result.education.length > 0 ? (
-          <ul className="flex flex-col gap-2">
-            {result.education.map((item, index) => (
-              <Entry
-                key={index}
-                primary={item.qualification}
-                secondary={item.institution}
-                period={dates(item.start, item.end)}
-              />
-            ))}
-          </ul>
-        ) : (
-          <Missing>No education found</Missing>
-        )}
-      </Section>
-
-      <Section title="Skills">
-        {result.skills.length > 0 ? (
-          <ul className="flex flex-wrap gap-2">
-            {result.skills.map((skill, index) => (
-              <li key={index} className="rounded-md border bg-surface px-2 py-0.5 text-sm break-words">
-                {skill}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Missing>No skills found</Missing>
-        )}
-      </Section>
-
-      {result.sections.length > 0 && (
-        <Section title="Section headings it found">
-          <ul className="flex flex-col gap-0.5">
             {result.sections.map((section, index) => (
-              <li key={index} className="break-words">
-                {section.heading}{" "}
-                <span className="text-sm text-muted-foreground">({section.kind})</span>
+              <li key={index} className="flex flex-col gap-1 rounded-md border p-3">
+                <div className="flex flex-wrap items-baseline gap-2">
+                  <h4 className="font-medium break-words">{section.heading}</h4>
+                  <span className="text-xs text-muted-foreground">{section.kind}</span>
+                </div>
+                {section.text.trim() ? (
+                  <p className="text-sm break-words whitespace-pre-wrap">{section.text}</p>
+                ) : (
+                  <Missing>No text under this heading</Missing>
+                )}
               </li>
             ))}
           </ul>
-        </Section>
-      )}
+        ) : (
+          <Missing>No sections found</Missing>
+        )}
+      </Section>
 
-      <details className="rounded-md border">
+      <p className="text-sm text-muted-foreground">
+        Compare the text below with your PDF. If it reads in a jumbled order, a simple parser reads it that way too.
+        Two-column CVs are the usual cause.
+      </p>
+
+      <details open className="rounded-md border">
         <summary className="cursor-pointer p-3 text-sm font-semibold">All the text it read</summary>
         <div className="border-t p-3">
           {result.text ? (
