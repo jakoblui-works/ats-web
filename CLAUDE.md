@@ -24,7 +24,7 @@ React 19, Vite, TanStack Router (file routes in `src/routes`; `routeTree.gen.ts`
 - `src/components/`: one folder per component with its stories and tests, files named after it (no `index.tsx`, no barrels), grouped by feature once there are several (`components/<feature>/<name>/`). The stories' titles follow the folders (`<Feature>/<Name>`). `ui/` stays flat, since the shadcn CLI expects it.
 - `src/components/app-header/app-header.tsx`: shared-ui's `SiteHeader` as this site shows it.
 - `src/components/not-found-page/not-found-page.tsx`: the 404 page, with shared-ui's default `NotFound`. Draw the site's own here to replace it.
-- `src/api/`: `fetcher.ts` (Orval's mutator: any non-2xx throws `ApiError {status, body}`, success bodies are zod-validated) and the generated client in `generated/` (`ats` tag of the prod spec; never edit by hand).
+- `src/api/`: `fetcher.ts` (Orval's mutator: any non-2xx throws `ApiError {status, body}`, success bodies are zod-validated) and the generated client in `generated/` (`ats` tag; for now generated from the local api, to go back to the prod spec before the first push; never edit by hand).
 - `src/prerender.tsx` + `scripts/prerender.mjs`: prerendering. `src/router.tsx`: the router, shared by it and `main.tsx`.
 
 ## Prerendering and 404s

@@ -86,7 +86,7 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
           <p className="text-muted-foreground">{verdict.text}</p>
           <p className="text-sm text-muted-foreground">
             {result.page_count} {result.page_count === 1 ? "page" : "pages"}
-            {result.visibility !== "invisible" && `, ${result.character_count} characters read`}.
+            {result.visibility !== "invisible" && `, ${result.character_count} characters`}.
           </p>
         </div>
       </div>

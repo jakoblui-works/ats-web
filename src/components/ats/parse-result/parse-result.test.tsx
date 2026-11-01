@@ -43,9 +43,9 @@ describe("ParseResult shows a missing field as missing", () => {
 
   it("hides the character count when nothing is readable, and shows it otherwise", () => {
     const { unmount } = render(<ParseResult result={{ ...invisibleResult, character_count: 9629 }} />);
-    expect(screen.queryByText(/characters read/i)).toBeNull();
+    expect(screen.queryByText(/characters/i)).toBeNull();
     unmount();
     render(<ParseResult result={readableResult} />);
-    expect(screen.getByText(/characters read/i)).toBeInTheDocument();
+    expect(screen.getByText(/characters/i)).toBeInTheDocument();
   });
 });

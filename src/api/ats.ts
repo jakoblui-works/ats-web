@@ -127,7 +127,7 @@ export const useAtsParse = (): {
     mutation: {
       // Offline, a mutation would otherwise pause with no way out; the deadline ends it.
       networkMode: "always",
-      // Nothing of the CV stays cached once it's forgotten.
+      // The query and mutation caches drop an entry as soon as nothing uses it.
       gcTime: 0,
     },
   });
@@ -189,7 +189,7 @@ export const useAtsParse = (): {
     },
   });
 
-  // The client timeout is final: whatever is still in flight (a retrying 429, a slow response)
+  // The client timeout is final: whatever is still in flight (a retry, a slow response)
   // is cancelled, so the screen can't change afterwards. A `done` that came earlier still wins.
   const statusKey = statusQuery.queryKey;
   useEffect(() => {
