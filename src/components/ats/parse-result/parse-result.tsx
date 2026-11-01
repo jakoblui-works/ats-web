@@ -105,6 +105,7 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
 
       <Section title="Contact">
         <dl className="flex flex-col gap-2">
+          <Field label="Name" value={contact.name} />
           <Field label="Email" value={contact.email} />
           <Field label="Phone" value={contact.phone} />
           <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
@@ -136,6 +137,7 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
                 return (
                   <li key={index} className="flex flex-col gap-0.5 rounded-md border p-3">
                     <span className="font-medium break-words">{job.title || <Missing />}</span>
+                    <span className="text-sm break-words">{job.company || <Missing />}</span>
                     <span className="text-sm text-muted-foreground">
                       {job.start || "?"} to {job.end || "?"}
                       {length && `, ${about ? "about " : ""}${length}`}
@@ -156,6 +158,46 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
           </>
         ) : (
           <Missing>No jobs found</Missing>
+        )}
+      </Section>
+
+      <Section title="Education">
+        {result.education.length > 0 ? (
+          <ul className="flex flex-col gap-2">
+            {result.education.map((entry, index) => (
+              <li key={index} className="flex flex-col gap-0.5 rounded-md border p-3">
+                <span className="font-medium break-words">{entry.qualification || <Missing />}</span>
+                <span className="text-sm break-words">{entry.institution || <Missing />}</span>
+                <span className="text-sm text-muted-foreground">
+                  {entry.start || entry.end ? (
+                    <>
+                      {entry.start}
+                      {entry.start && entry.end && entry.start !== entry.end && ` to ${entry.end}`}
+                      {!entry.start && entry.end}
+                    </>
+                  ) : (
+                    <Missing />
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Missing>No education found</Missing>
+        )}
+      </Section>
+
+      <Section title="Skills">
+        {result.skills.length > 0 ? (
+          <ul className="flex flex-wrap gap-2">
+            {result.skills.map((skill, index) => (
+              <li key={index} className="rounded-md border bg-surface px-2 py-0.5 text-sm break-words">
+                {skill}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Missing>No skills found</Missing>
         )}
       </Section>
 

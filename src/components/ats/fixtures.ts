@@ -7,7 +7,7 @@ export const readableResult: ParseResultOutput = {
   character_count: 3120,
   text: "Alex Example\nalex@example.com\n+00 000 000 000\n\nWork history\nSenior Engineer, Example Co\n2019 - 2024\n\nEducation\nBSc Computing, Example University\n2012 - 2015\n\nSkills\nPython, SQL",
   contact: {
-    name: null,
+    name: "Alex Example",
     email: "alex@example.com",
     phone: "+00 000 000 000",
     location: null,
@@ -19,13 +19,16 @@ export const readableResult: ParseResultOutput = {
     { kind: "skills", heading: "Skills", text: "Python, SQL" },
   ],
   experience: [
-    { title: "Senior Engineer", company: null, start: "Mar 2019", end: "Jun 2021", months: 28 },
+    { title: "Senior Engineer", company: "Example Co", start: "Mar 2019", end: "Jun 2021", months: 28 },
     { title: null, company: null, start: "Feb 2016", end: "Feb 2017", months: 13 },
     { title: "Developer", company: null, start: "2012", end: "2014", months: 24 },
   ],
   experience_months: 65,
-  education: [],
-  skills: [],
+  education: [
+    { qualification: "BSc Computing", institution: "Example University", start: "2012", end: "2015" },
+    { qualification: null, institution: "Sample College", start: "2010", end: "2012" },
+  ],
+  skills: ["Python", "SQL", "Teamwork"],
   warnings: [],
 };
 

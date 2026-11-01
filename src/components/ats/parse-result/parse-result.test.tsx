@@ -82,7 +82,7 @@ describe("ParseResult experience", () => {
     ["null", null],
     ["empty", ""],
   ])("shows a %s title as not found", (_name, title) => {
-    render(<ParseResult result={withJobs([job({ title })], 27)} />);
+    render(<ParseResult result={withJobs([job({ title, company: "Invented Ltd" })], 27)} />);
     expect(within(experienceBlock()).getByText(MISSING)).toBeInTheDocument();
   });
 
@@ -124,5 +124,70 @@ describe("ParseResult experience", () => {
     render(<ParseResult result={invisibleResult} />);
     expect(within(experienceBlock()).getByText(/not found|no jobs/i)).toBeInTheDocument();
     expect(screen.queryByText(/^Total/)).toBeNull();
+  });
+});
+
+describe("ParseResult shows name, employer, education and skills", () => {
+  it("shows the name, and marks it missing when absent", () => {
+    const { unmount } = render(<ParseResult result={readableResult} />);
+    expect(fieldValue("Name")).toHaveTextContent(readableResult.contact.name!);
+    unmount();
+    render(<ParseResult result={{ ...readableResult, contact: { ...readableResult.contact, name: null } }} />);
+    expect(fieldValue("Name")).toHaveTextContent(MISSING);
+  });
+
+  it("shows an employer under the title, and marks it missing when absent", () => {
+    const { unmount } = render(<ParseResult result={{ ...readableResult, experience: [job({ company: "Invented Ltd" })] }} />);
+    expect(screen.getByText("Invented Ltd")).toBeInTheDocument();
+    unmount();
+    render(<ParseResult result={{ ...readableResult, experience: [job({ company: null })] }} />);
+    const item = screen.getByText("Engineer").closest("li")!;
+    expect(item.children[1]).toHaveTextContent(MISSING);
+  });
+
+  it("shows an education row with a missing part as not found", () => {
+    render(
+      <ParseResult
+        result={{
+          ...readableResult,
+          education: [{ qualification: null, institution: "Sample College", start: "2010", end: "2012" }],
+        }}
+      />,
+    );
+    const item = screen.getByText("Sample College").closest("li")!;
+    expect(item).toHaveTextContent(MISSING);
+    expect(item).toHaveTextContent("2010 to 2012");
+  });
+
+  it("shows a lone year without a made-up start", () => {
+    render(
+      <ParseResult
+        result={{
+          ...readableResult,
+          education: [{ qualification: "Diploma", institution: "Sample College", start: null, end: "2015" }],
+        }}
+      />,
+    );
+    const item = screen.getByText("Sample College").closest("li")!;
+    expect(item).toHaveTextContent("2015");
+    expect(item).not.toHaveTextContent(MISSING);
+    expect(item).not.toHaveTextContent("to 2015");
+  });
+
+  it("says so when there is no education", () => {
+    render(<ParseResult result={invisibleResult} />);
+    expect(screen.getByText("No education found")).toBeInTheDocument();
+  });
+
+  it("lists skills as chips", () => {
+    render(<ParseResult result={{ ...readableResult, skills: ["Python", "SQL"] }} />);
+    expect(screen.getByText("Python").closest("li")).toBeInTheDocument();
+    expect(screen.getByText("SQL")).toBeInTheDocument();
+    expect(screen.queryByText("No skills found")).toBeNull();
+  });
+
+  it("says so when there are no skills", () => {
+    render(<ParseResult result={invisibleResult} />);
+    expect(screen.getByText("No skills found")).toBeInTheDocument();
   });
 });
