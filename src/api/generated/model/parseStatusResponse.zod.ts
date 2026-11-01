@@ -29,8 +29,10 @@ export const ParseStatusResponse = zod.object({
   "title": zod.union([zod.string(),zod.null()]),
   "company": zod.union([zod.string(),zod.null()]),
   "start": zod.union([zod.string(),zod.null()]),
-  "end": zod.union([zod.string(),zod.null()])
+  "end": zod.union([zod.string(),zod.null()]),
+  "months": zod.union([zod.int(),zod.null()])
 })),
+  "experience_months": zod.union([zod.int(),zod.null()]),
   "education": zod.array(zod.object({
   "institution": zod.union([zod.string(),zod.null()]),
   "qualification": zod.union([zod.string(),zod.null()]),

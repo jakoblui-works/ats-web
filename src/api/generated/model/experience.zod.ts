@@ -10,7 +10,8 @@ export const Experience = zod.object({
   "title": zod.union([zod.string(),zod.null()]),
   "company": zod.union([zod.string(),zod.null()]),
   "start": zod.union([zod.string(),zod.null()]),
-  "end": zod.union([zod.string(),zod.null()])
+  "end": zod.union([zod.string(),zod.null()]),
+  "months": zod.union([zod.int(),zod.null()])
 })
 
 export type Experience = zod.input<typeof Experience>;

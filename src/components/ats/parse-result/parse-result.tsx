@@ -4,6 +4,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 import type { ParseResultOutput } from "@/api/generated/model";
 import { cn } from "@/lib/utils";
 
+import { formatMonths, isYearOnly } from "./format-months";
+
 type Result = ParseResultOutput;
 type Visibility = Result["visibility"];
 type Warning = Result["warnings"][number];
@@ -122,6 +124,39 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
             </dd>
           </div>
         </dl>
+      </Section>
+
+      <Section title="Experience">
+        {result.experience.length > 0 ? (
+          <>
+            <ul className="flex flex-col gap-2">
+              {result.experience.map((job, index) => {
+                const length = formatMonths(job.months);
+                const about = isYearOnly(job.start) || isYearOnly(job.end);
+                return (
+                  <li key={index} className="flex flex-col gap-0.5 rounded-md border p-3">
+                    <span className="font-medium break-words">{job.title || <Missing />}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {job.start || "?"} to {job.end || "?"}
+                      {length && `, ${about ? "about " : ""}${length}`}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+            {formatMonths(result.experience_months) && (
+              <>
+                <p className="text-sm font-medium">
+                  Total: {result.experience.some((job) => isYearOnly(job.start) || isYearOnly(job.end)) && "about "}
+                  {formatMonths(result.experience_months)}
+                </p>
+                <p className="text-sm text-muted-foreground">Jobs that overlap are counted once in the total.</p>
+              </>
+            )}
+          </>
+        ) : (
+          <Missing>No jobs found</Missing>
+        )}
       </Section>
 
       <Section title="Sections">

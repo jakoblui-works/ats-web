@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { ParseResultOutput } from "@/api/generated/model";
@@ -47,5 +47,82 @@ describe("ParseResult shows a missing field as missing", () => {
     unmount();
     render(<ParseResult result={readableResult} />);
     expect(screen.getByText(/characters/i)).toBeInTheDocument();
+  });
+});
+
+const job = (over: Partial<ParseResultOutput["experience"][number]> = {}) => ({
+  title: "Engineer",
+  company: null,
+  start: "Jan 2020",
+  end: "Mar 2022",
+  months: 27,
+  ...over,
+});
+
+const withJobs = (experience: ParseResultOutput["experience"], experience_months: number | null) => ({
+  ...readableResult,
+  experience,
+  experience_months,
+});
+
+const experienceBlock = () => screen.getByRole("heading", { name: "Experience" }).parentElement as HTMLElement;
+
+describe("ParseResult experience", () => {
+  it("shows a row per job with title, dates as written and length", () => {
+    render(<ParseResult result={withJobs([job(), job({ title: "Lead", start: "Apr 2022", end: "Present", months: 12 })], 39)} />);
+    const items = within(experienceBlock()).getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveTextContent("Engineer");
+    expect(items[0]).toHaveTextContent("Jan 2020 to Mar 2022");
+    expect(items[0]).toHaveTextContent("2 yrs 3 mos");
+    expect(items[1]).toHaveTextContent("Apr 2022 to Present");
+  });
+
+  it.each([
+    ["null", null],
+    ["empty", ""],
+  ])("shows a %s title as not found", (_name, title) => {
+    render(<ParseResult result={withJobs([job({ title })], 27)} />);
+    expect(within(experienceBlock()).getByText(MISSING)).toBeInTheDocument();
+  });
+
+  it("says about on a year-only job and on the total", () => {
+    render(<ParseResult result={withJobs([job({ start: "2012", end: "2014", months: 24 })], 24)} />);
+    expect(within(experienceBlock()).getAllByText(/about 2 yrs/)).toHaveLength(2);
+    expect(screen.getByText(/^Total: about 2 yrs/)).toBeInTheDocument();
+  });
+
+  it("doesn't say about when every date has a month", () => {
+    render(<ParseResult result={withJobs([job()], 27)} />);
+    expect(within(experienceBlock()).queryByText(/about/i)).toBeNull();
+    expect(screen.getByText("Total: 2 yrs 3 mos")).toBeInTheDocument();
+  });
+
+  it("uses singular forms for one year and one month", () => {
+    render(<ParseResult result={withJobs([job({ months: 13 }), job({ months: 12 }), job({ months: 1 })], 25)} />);
+    const items = within(experienceBlock()).getAllByRole("listitem");
+    expect(items[0]).toHaveTextContent("1 yr 1 mo");
+    expect(items[1]!.textContent).toMatch(/, 1 yr$/);
+    expect(items[2]).toHaveTextContent("1 mo");
+    expect(screen.getByText("Total: 2 yrs 1 mo")).toBeInTheDocument();
+  });
+
+  it("shows no length for 0 or null months, and no total for a null total", () => {
+    render(<ParseResult result={withJobs([job({ months: 0 }), job({ months: null })], null)} />);
+    const items = within(experienceBlock()).getAllByRole("listitem");
+    for (const item of items) expect(item.textContent).not.toMatch(/yr|mo\b/);
+    expect(screen.queryByText(/^Total/)).toBeNull();
+    expect(screen.queryByText(/overlap/i)).toBeNull();
+  });
+
+  it("explains that overlapping jobs count once", () => {
+    render(<ParseResult result={withJobs([job()], 27)} />);
+    expect(screen.getByText(/overlap/i)).toBeInTheDocument();
+  });
+
+  it("shows a missing block when there are no jobs", () => {
+    render(<ParseResult result={invisibleResult} />);
+    expect(within(experienceBlock()).getByText(/not found|no jobs/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^Total/)).toBeNull();
   });
 });
