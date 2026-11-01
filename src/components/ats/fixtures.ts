@@ -28,7 +28,7 @@ export const readableResult: ParseResultOutput = {
     { qualification: "BSc Computing", institution: "Example University", start: "2012", end: "2015" },
     { qualification: null, institution: "Sample College", start: "2010", end: "2012" },
   ],
-  skills: ["Python", "SQL", "Teamwork"],
+  skills: [],
   warnings: [],
 };
 

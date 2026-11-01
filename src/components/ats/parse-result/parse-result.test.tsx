@@ -127,7 +127,7 @@ describe("ParseResult experience", () => {
   });
 });
 
-describe("ParseResult shows name, employer, education and skills", () => {
+describe("ParseResult shows name, employer, and education", () => {
   it("shows the name, and marks it missing when absent", () => {
     const { unmount } = render(<ParseResult result={readableResult} />);
     expect(fieldValue("Name")).toHaveTextContent(readableResult.contact.name!);
@@ -177,17 +177,5 @@ describe("ParseResult shows name, employer, education and skills", () => {
   it("says so when there is no education", () => {
     render(<ParseResult result={invisibleResult} />);
     expect(screen.getByText("No education found")).toBeInTheDocument();
-  });
-
-  it("lists skills as chips", () => {
-    render(<ParseResult result={{ ...readableResult, skills: ["Python", "SQL"] }} />);
-    expect(screen.getByText("Python").closest("li")).toBeInTheDocument();
-    expect(screen.getByText("SQL")).toBeInTheDocument();
-    expect(screen.queryByText("No skills found")).toBeNull();
-  });
-
-  it("says so when there are no skills", () => {
-    render(<ParseResult result={invisibleResult} />);
-    expect(screen.getByText("No skills found")).toBeInTheDocument();
   });
 });

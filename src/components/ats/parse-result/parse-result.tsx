@@ -2,6 +2,7 @@ import { CircleCheckIcon, EyeOffIcon, TriangleAlertIcon, type LucideIcon } from 
 import { useEffect, useRef, type ReactNode } from "react";
 
 import type { ParseResultOutput } from "@/api/generated/model";
+import { TextSearch } from "@/components/ats/text-search/text-search";
 import { cn } from "@/lib/utils";
 
 import { formatMonths, isYearOnly } from "./format-months";
@@ -187,20 +188,6 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
         )}
       </Section>
 
-      <Section title="Skills">
-        {result.skills.length > 0 ? (
-          <ul className="flex flex-wrap gap-2">
-            {result.skills.map((skill, index) => (
-              <li key={index} className="rounded-md border bg-surface px-2 py-0.5 text-sm break-words">
-                {skill}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Missing>No skills found</Missing>
-        )}
-      </Section>
-
       <Section title="Sections">
         {result.sections.length > 0 ? (
           <ul className="flex flex-col gap-2">
@@ -232,9 +219,7 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
         <summary className="cursor-pointer p-3 text-sm font-semibold">All the text it read</summary>
         <div className="border-t p-3">
           {result.text ? (
-            <pre className="max-h-96 overflow-auto font-mono text-sm break-words whitespace-pre-wrap">
-              {result.text}
-            </pre>
+            <TextSearch text={result.text} />
           ) : (
             <Missing>No text</Missing>
           )}
