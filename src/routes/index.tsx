@@ -45,10 +45,17 @@ const HomePage = () => {
 
   // Below the return above: the prerendered page is the upload view, and Node has no `navigator`.
   const inlinePdf = largeScreen && navigator.pdfViewerEnabled;
+  const backToUpload = () =>
+    withViewTransition(() => {
+      reset();
+      setFile(null);
+      setCameBack(true);
+    });
 
   return (
     <>
-      <AppHeader />
+      {/* The logo links to `/`, where this already is, so it resets the page as "Check another CV" does. */}
+      <AppHeader onHome={backToUpload} />
       <main className="mx-auto w-full max-w-6xl px-4 py-8 lg:h-[calc(100dvh-var(--spacing-header))]">
         <h1 className="sr-only">Your CV as a simple parser sees it</h1>
         <div className="lg:h-full [view-transition-name:ats-result]">
@@ -57,13 +64,7 @@ const HomePage = () => {
             fileUrl={preview.url}
             pdfUnavailable={preview.unavailable}
             inlinePdf={inlinePdf}
-            onReset={() =>
-              withViewTransition(() => {
-                reset();
-                setFile(null);
-                setCameBack(true);
-              })
-            }
+            onReset={backToUpload}
           />
         </div>
       </main>

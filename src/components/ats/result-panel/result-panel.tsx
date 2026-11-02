@@ -2,15 +2,10 @@ import type { ReactNode } from "react";
 
 import { MAX_UPLOAD_BYTES, type AtsFailureReason, type AtsParse } from "@/api/ats";
 import { ParseResult } from "@/components/ats/parse-result/parse-result";
-import { PrivacyNote } from "@/components/ats/privacy-note/privacy-note";
-import { TryAnother } from "@/components/ats/try-another/try-another";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
 
 type ResultPanelProps = {
   parse: AtsParse;
-  /** Back to the upload view, to try another file. */
-  onReset: () => void;
   /** The result landed without focus moving to it, so the live region has to announce it. */
   focusKept?: boolean;
 };
@@ -26,9 +21,6 @@ const FAILURE_MESSAGES: Record<AtsFailureReason, string> = {
   error: "Something went wrong while reading the PDF.",
 };
 
-/** Failures where the file was turned away before it was stored, or where the code can't know it was deleted. */
-const NO_DELETION_CLAIM: AtsFailureReason[] = ["rate-limited", "too-large", "not-pdf", "error", "timed-out"];
-
 const ANNOUNCEMENTS: Record<AtsParse["status"], string> = {
   uploading: "Uploading your CV",
   processing: "Reading your CV",
@@ -36,12 +28,9 @@ const ANNOUNCEMENTS: Record<AtsParse["status"], string> = {
   failed: "",
 };
 
-const Working = ({ label }: { label: string }) => (
-  <div className="flex flex-col gap-6" aria-busy>
-    <div aria-hidden className="flex items-center gap-3 text-muted-foreground">
-      <Spinner aria-hidden className="size-6" />
-      <p>{label}</p>
-    </div>
+/** The bar above says what it's doing; this holds the place of the result. */
+const Working = () => (
+  <div aria-busy>
     {/* On the page, not in a box: light mode's muted is the page's grey, so they take cv-web's page-level tone. */}
     <div aria-hidden className="flex flex-col gap-4 *:bg-input/60 dark:*:bg-muted">
       <Skeleton className="h-8 w-3/4" />
@@ -54,30 +43,22 @@ const Working = ({ label }: { label: string }) => (
 );
 
 /** The right-hand side: a working state, then what a simple parser would see, or why it couldn't. */
-export const ResultPanel = ({ parse, onReset, focusKept = false }: ResultPanelProps) => {
+export const ResultPanel = ({ parse, focusKept = false }: ResultPanelProps) => {
   let content: ReactNode;
-  if (parse.status === "uploading") {
-    content = <Working label="Uploading…" />;
-  } else if (parse.status === "processing") {
-    content = <Working label="Reading your CV…" />;
+  if (parse.status === "uploading" || parse.status === "processing") {
+    content = <Working />;
   } else if (parse.status === "failed") {
+    // "Check another CV" in the bar above is the way back.
     content = (
-      <div className="flex flex-col items-center gap-4 rounded-md border bg-surface p-6 text-center">
+      <div className="rounded-md border bg-surface p-6 text-center">
         <p role="alert" className="text-destructive">
           {FAILURE_MESSAGES[parse.reason]}
         </p>
-        <TryAnother onReset={onReset}>Try another file</TryAnother>
       </div>
     );
   } else {
     content = <ParseResult result={parse.result} />;
   }
-
-  // A finished result shows the note in the bar above.
-  const stored =
-    parse.status === "uploading" ||
-    parse.status === "processing" ||
-    (parse.status === "failed" && !NO_DELETION_CLAIM.includes(parse.reason));
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,7 +68,6 @@ export const ResultPanel = ({ parse, onReset, focusKept = false }: ResultPanelPr
         {parse.status === "done" && !focusKept ? "" : ANNOUNCEMENTS[parse.status]}
       </p>
       {content}
-      {stored && <PrivacyNote />}
     </div>
   );
 };

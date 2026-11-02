@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent } from "storybook/test";
+import { expect } from "storybook/test";
 
 import type { AtsFailureReason } from "@/api/ats";
 import { invisibleResult, partialResult, readableResult } from "@/components/ats/fixtures";
@@ -9,7 +9,6 @@ import { ResultPanel } from "./result-panel";
 const meta: Meta<typeof ResultPanel> = {
   title: "ATS/ResultPanel",
   component: ResultPanel,
-  args: { onReset: fn() },
   decorators: [
     (Story) => (
       <div className="w-xl">
@@ -25,7 +24,6 @@ type Story = StoryObj<typeof ResultPanel>;
 export const Uploading: Story = {
   args: { parse: { status: "uploading" } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Uploading…")).toBeVisible();
     await expect(canvas.getByRole("status")).toHaveTextContent("Uploading your CV");
   },
 };
@@ -33,7 +31,6 @@ export const Uploading: Story = {
 export const Processing: Story = {
   args: { parse: { status: "processing" } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Reading your CV…")).toBeVisible();
     await expect(canvas.getByRole("status")).toHaveTextContent("Reading your CV");
   },
 };
@@ -75,10 +72,10 @@ const MESSAGE_TOPICS: Record<AtsFailureReason, RegExp> = {
   error: /went wrong/i,
 };
 
-/** Failures after the file was stored say it was deleted; ones that turned it away don't. */
-const failure = (reason: AtsFailureReason, stored = false): Story => ({
+/** The reason, and nothing else: the deletion note and the way back are the bar's (one of each on the page). */
+const failure = (reason: AtsFailureReason): Story => ({
   args: { parse: { status: "failed", reason } },
-  play: async ({ args, canvas }) => {
+  play: async ({ canvas }) => {
     const alert = canvas.getByRole("alert");
     await expect(alert).toBeVisible();
     // Its own message, and none of the other reasons'.
@@ -86,18 +83,16 @@ const failure = (reason: AtsFailureReason, stored = false): Story => ({
       if (other === reason) await expect(alert).toHaveTextContent(topic);
       else await expect(alert).not.toHaveTextContent(topic);
     }
-    if (stored) await expect(canvas.getByText(/deleted right after/)).toBeVisible();
-    else await expect(canvas.queryByText(/deleted right after/)).toBeNull();
-    await userEvent.click(canvas.getByRole("button", { name: "Try another file" }));
-    await expect(args.onReset).toHaveBeenCalled();
+    await expect(canvas.queryByText(/deleted right after/)).toBeNull();
+    await expect(canvas.queryByRole("button")).toBeNull();
   },
 });
 
 export const RateLimited = failure("rate-limited");
 export const TooLarge = failure("too-large");
 export const NotPdf = failure("not-pdf");
-export const TooManyPages = failure("too-many-pages", true);
-export const Encrypted = failure("encrypted", true);
-export const Corrupt = failure("corrupt", true);
+export const TooManyPages = failure("too-many-pages");
+export const Encrypted = failure("encrypted");
+export const Corrupt = failure("corrupt");
 export const TimedOut = failure("timed-out");
 export const Error = failure("error");

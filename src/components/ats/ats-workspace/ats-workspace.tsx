@@ -26,9 +26,7 @@ export const AtsWorkspace = ({ parse, fileUrl, inlinePdf, pdfUnavailable, onRese
 
   return (
     <div className="flex flex-col gap-6 lg:h-full">
-      {parse.status === "done" && (
-        <ResultBar result={parse.result} onReset={onReset} onFocusKept={() => setFocusKept(true)} />
-      )}
+      <ResultBar parse={parse} onReset={onReset} onFocusKept={() => setFocusKept(true)} />
       <div className="grid gap-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
         <div className="order-2 lg:order-0 lg:h-full">
           <PdfPanel url={fileUrl} inline={inlinePdf} unavailable={pdfUnavailable} />
@@ -41,7 +39,7 @@ export const AtsWorkspace = ({ parse, fileUrl, inlinePdf, pdfUnavailable, onRese
           className="order-1 min-w-0 lg:order-0 lg:-m-1 lg:overflow-y-auto lg:scroll-pb-12 lg:p-1 lg:data-more-below:mask-[linear-gradient(to_bottom,black_calc(100%-3rem),transparent)]"
         >
           <div ref={contentRef}>
-            <ResultPanel parse={parse} onReset={onReset} focusKept={focusKept} />
+            <ResultPanel parse={parse} focusKept={focusKept} />
           </div>
         </div>
       </div>
