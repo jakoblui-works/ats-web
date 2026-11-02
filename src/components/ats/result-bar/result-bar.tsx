@@ -7,7 +7,7 @@ import { PrivacyNote } from "@/components/ats/privacy-note/privacy-note";
 import { TryAnother } from "@/components/ats/try-another/try-another";
 import { cn } from "@/lib/utils";
 
-type Status = { icon: LucideIcon; tone: string; title: string };
+type Status = { icon: LucideIcon; tone: string; title: string; note?: string };
 
 const WARNING_TONE = "text-amber-600 dark:text-amber-400";
 
@@ -27,7 +27,9 @@ const statusOf = (result: ParseResultOutput): Status => {
   return {
     icon: CircleCheckIcon,
     tone: "text-emerald-600 dark:text-emerald-400",
-    title: "Readable by a simple parser",
+    title: "A simple parser found your details",
+    // Reading order is the one thing it can't check, so a pass never vouches for it.
+    note: "It can't tell whether the order is right. Compare the text with your PDF.",
   };
 };
 
@@ -49,7 +51,7 @@ export const ResultBar = ({ result, onReset, onFocusKept }: ResultBarProps) => {
     else onFocusKept?.();
     // On arrival only.
   }, []);
-  const { icon: Icon, tone, title } = statusOf(result);
+  const { icon: Icon, tone, title, note } = statusOf(result);
 
   return (
     <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
@@ -60,6 +62,7 @@ export const ResultBar = ({ result, onReset, onFocusKept }: ResultBarProps) => {
             {title}
           </h2>
         </div>
+        {note && <p className="text-sm">{note}</p>}
         <PrivacyNote />
       </div>
       <div className="shrink-0">

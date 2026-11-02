@@ -31,10 +31,10 @@ export const UploadView = ({ onFile, dragging = false, focusButton = false }: Up
   return (
     <div className="flex flex-col items-center gap-8 text-center">
       <div className="flex flex-col gap-3">
-        <h1 className="text-2xl font-semibold">See what a simple parser sees</h1>
+        <h1 className="text-2xl font-semibold">Would a simple ATS read your CV?</h1>
         <p className="text-muted-foreground">
-          Upload your CV as a PDF and see the text a simple parser would pull out of it. It reads English and Danish
-          CVs.
+          Upload your CV as a PDF and see what a deliberately simple parser picks out of it: a worst case. If it reads
+          your CV correctly, most applicant tracking systems will too. English and Danish CVs.
         </p>
       </div>
       {/* Clicking the area opens the picker too; the button is the keyboard route, and stops its click bubbling here. */}

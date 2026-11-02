@@ -16,7 +16,8 @@ type Story = StoryObj<typeof ResultBar>;
 
 export const Readable: Story = {
   play: async ({ args, canvas }) => {
-    await expect(canvas.getByRole("heading", { name: "Readable by a simple parser" })).toHaveFocus();
+    await expect(canvas.getByRole("heading", { name: "A simple parser found your details" })).toHaveFocus();
+    await expect(canvas.getByText(/Compare the text with your PDF/)).toBeVisible();
     await expect(canvas.getByText(/expires within an hour/)).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: "Check another CV" }));
     await expect(args.onReset).toHaveBeenCalled();
