@@ -34,7 +34,7 @@ const HomePage = () => {
     return (
       <>
         <AppHeader />
-        <main className="mx-auto w-full max-w-xl px-4 pt-24 pb-12 sm:pt-36">
+        <main className="mx-auto w-full max-w-5xl px-4 pt-16 pb-12 sm:pt-24">
           <div className="[view-transition-name:ats-upload]">
             <UploadView onFile={choose} dragging={dragging} focusButton={cameBack} />
           </div>

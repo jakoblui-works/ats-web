@@ -9,7 +9,7 @@ const meta: Meta<typeof UploadView> = {
   args: { onFile: fn() },
   decorators: [
     (Story) => (
-      <div className="w-xl">
+      <div className="w-5xl">
         <Story />
       </div>
     ),
@@ -24,8 +24,8 @@ export const Idle: Story = {
   play: async ({ args, canvas, canvasElement }) => {
     await expect(canvas.getByRole("button", { name: "Upload CV" })).toBeVisible();
     await expect(canvas.getByText(/deleted right after/)).toBeVisible();
-    await expect(canvas.getByText(/English and Danish/)).toBeVisible();
-    await expect(canvas.getByText("Drop a PDF here or")).toBeVisible();
+    await expect(canvas.getByText(/English or Danish/)).toBeVisible();
+    await expect(canvas.getByText("Drop your CV here")).toBeVisible();
 
     const file = new File(["%PDF-1.4"], "cv.pdf", { type: "application/pdf" });
     await userEvent.upload(canvasElement.querySelector<HTMLInputElement>("input[type=file]")!, file);

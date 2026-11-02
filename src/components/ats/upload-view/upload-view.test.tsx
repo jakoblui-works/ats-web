@@ -11,7 +11,7 @@ describe("UploadView", () => {
     const area = container.querySelector<HTMLElement>("div.border-dashed")!;
     const heading = screen.getByRole("heading", { level: 1 });
     expect(area).not.toContainElement(heading);
-    expect(area).not.toContainElement(screen.getByText(/English and Danish/));
+    expect(area).not.toContainElement(screen.getByText(/most\s+ATS will too/));
     expect(area).not.toContainElement(screen.getByText(/deleted right after/));
     expect(area).toContainElement(screen.getByRole("button", { name: "Upload CV" }));
     expect(screen.getAllByRole("button")).toHaveLength(1);
@@ -31,7 +31,7 @@ describe("UploadView", () => {
     const opened = vi.spyOn(input, "click");
     fireEvent.click(screen.getByRole("button", { name: "Upload CV" }));
     expect(opened).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByText("Drop a PDF here or"));
+    fireEvent.click(screen.getByText("Drop your CV here"));
     expect(opened).toHaveBeenCalledTimes(2);
     const file = pdf();
     fireEvent.change(input, { target: { files: [file] } });
