@@ -3,10 +3,13 @@ import { TextSearch } from "@/components/ats/text-search/text-search";
 
 import { Missing } from "./missing";
 
-type TextTabProps = Pick<ParseResultOutput, "sections" | "text">;
+type TextTabProps = Pick<ParseResultOutput, "sections" | "text"> & { pageCount: number; characterCount: number };
 
-export const TextTab = ({ sections, text }: TextTabProps) => (
+export const TextTab = ({ sections, text, pageCount, characterCount }: TextTabProps) => (
   <div className="flex flex-col gap-3">
+    <p className="text-sm">
+      {characterCount} characters read from {pageCount} {pageCount === 1 ? "page" : "pages"}
+    </p>
     <p className="text-sm break-words">
       <span className="text-muted-foreground">Headings found: </span>
       {sections.length > 0 ? sections.map((section) => section.heading).join(", ") : <Missing>None</Missing>}

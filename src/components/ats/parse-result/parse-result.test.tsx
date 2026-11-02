@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { ParseResultOutput } from "@/api/generated/model";
@@ -162,36 +162,39 @@ describe("ParseResult shows name, employer, and education", () => {
   });
 });
 
-describe("ParseResult summary", () => {
-  it("sits right under the verdict, and the readable verdict points to it", () => {
-    render(<ParseResult result={readableResult} />);
-    const summary = screen.getByRole("heading", { name: "What it picked out" });
-    const verdict = screen.getByRole("heading", { level: 2 });
-    expect(verdict.compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByText(/Its text came through/)).toBeInTheDocument();
-  });
-
-  it("gives a readable result with something missing no pass tone, and says so", () => {
-    const missing = { ...readableResult, contact: { ...readableResult.contact, phone: null } };
-    const { container } = render(<ParseResult result={missing} />);
-    expect(screen.getByText(/some details weren't picked out/)).toBeInTheDocument();
-    expect(container.querySelector("[class*=emerald]")).toBeNull();
-  });
-});
-
 describe("ParseResult tabs", () => {
-  it("shows no tabs when nothing could be read, but keeps the verdict and warnings", () => {
+  it("shows no tabs when nothing could be read, but keeps the warnings", () => {
     render(<ParseResult result={invisibleResult} />);
     expect(screen.queryByRole("tab")).toBeNull();
-    expect(screen.queryByRole("heading", { name: "What it picked out" })).toBeNull();
-    expect(screen.getByRole("heading", { level: 2 })).toBeInTheDocument();
     expect(screen.getByText("Things to look at")).toBeInTheDocument();
   });
 
-  it("counts jobs and education in the tab names, including none", () => {
+  it("counts jobs and education in the tab names, and says when there are none", () => {
+    render(<ParseResult result={readableResult} />);
+    expect(screen.getByRole("tab", { name: `Experience ${readableResult.experience.length}` })).toBeInTheDocument();
+    cleanup();
     render(<ParseResult result={{ ...readableResult, experience: [], education: [] }} />);
-    expect(screen.getByRole("tab", { name: "Experience (0)" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Education (0)" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Experience.*none found/ })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Education.*none found/ })).toBeInTheDocument();
+  });
+
+  it("marks the contact tab only when a contact detail is missing", () => {
+    render(<ParseResult result={readableResult} />);
+    expect(screen.getByRole("tab", { name: "Contact" })).toBeInTheDocument();
+    cleanup();
+    render(<ParseResult result={{ ...readableResult, contact: { ...readableResult.contact, phone: null } }} />);
+    expect(screen.getByRole("tab", { name: /Contact.*missing/ })).toBeInTheDocument();
+  });
+
+  it("explains a partial result even when it has no warnings", () => {
+    render(<ParseResult result={{ ...readableResult, visibility: "partial", warnings: [] }} />);
+    expect(screen.getByText("Things to look at")).toBeInTheDocument();
+    expect(screen.getByText(/may be missing or in the wrong order/)).toBeInTheDocument();
+  });
+
+  it("puts the singular page count in the text tab", () => {
+    showTab({ ...readableResult, page_count: 1 }, /^Text/);
+    expect(within(screen.getByRole("tabpanel")).getByText(/characters read from 1 page$/)).toBeInTheDocument();
   });
 
   it("lists the headings it found in the text tab", () => {

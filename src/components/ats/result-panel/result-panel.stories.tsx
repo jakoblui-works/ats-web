@@ -40,26 +40,15 @@ export const Processing: Story = {
 
 export const Readable: Story = {
   args: { parse: { status: "done", result: readableResult } },
-  play: async ({ args, canvas }) => {
-    const heading = canvas.getByRole("heading", { name: /a simple parser can read this text/i });
-    await expect(heading).toBeVisible();
-    // Focus moves to the verdict when the result arrives.
-    await expect(heading).toHaveFocus();
-    // Focus on the verdict announces it, so the live region stays quiet.
-    await expect(canvas.getByRole("status")).toBeEmptyDOMElement();
+  play: async ({ canvas }) => {
     await expect(canvas.getByText("alex@example.com")).toBeVisible();
-    await expect(canvas.getByText(/expires within an hour/)).toBeVisible();
-    await userEvent.click(canvas.getByRole("button", { name: "Check another CV" }));
-    await expect(args.onReset).toHaveBeenCalled();
+    await expect(canvas.getByRole("status")).toBeEmptyDOMElement();
   },
 };
 
 export const Partial: Story = {
   args: { parse: { status: "done", result: partialResult } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("heading", { name: /only part of this/i })).toBeVisible();
-    await expect(canvas.getByRole("heading", { name: "What it picked out" })).toBeVisible();
-    await expect(canvas.getAllByText("not found").length).toBeGreaterThan(0);
     await expect(canvas.getByText("Things to look at")).toBeVisible();
     // Missing fields are shown as missing.
     await expect(canvas.getAllByText("Not found").length).toBeGreaterThan(0);
@@ -69,7 +58,8 @@ export const Partial: Story = {
 export const Invisible: Story = {
   args: { parse: { status: "done", result: invisibleResult } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("heading", { name: /see nothing here/i })).toBeVisible();
+    await expect(canvas.getByText("Things to look at")).toBeVisible();
+    await expect(canvas.queryByRole("tab")).toBeNull();
   },
 };
 

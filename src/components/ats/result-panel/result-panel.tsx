@@ -1,9 +1,9 @@
-import { RotateCwIcon } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { MAX_UPLOAD_BYTES, type AtsFailureReason, type AtsParse } from "@/api/ats";
 import { ParseResult } from "@/components/ats/parse-result/parse-result";
-import { Button } from "@/components/ui/button";
+import { PrivacyNote } from "@/components/ats/privacy-note/privacy-note";
+import { TryAnother } from "@/components/ats/try-another/try-another";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -11,6 +11,8 @@ type ResultPanelProps = {
   parse: AtsParse;
   /** Back to the upload view, to try another file. */
   onReset: () => void;
+  /** The result landed without focus moving to it, so the live region has to announce it. */
+  focusKept?: boolean;
 };
 
 const FAILURE_MESSAGES: Record<AtsFailureReason, string> = {
@@ -23,10 +25,6 @@ const FAILURE_MESSAGES: Record<AtsFailureReason, string> = {
   "timed-out": "This is taking too long. Try again, or try another file.",
   error: "Something went wrong while reading the PDF.",
 };
-
-const PrivacyNote = () => (
-  <p className="text-sm">Your file is deleted right after it is parsed, and the result expires within an hour.</p>
-);
 
 /** Failures where the file was turned away before it was stored, or where the code can't know it was deleted. */
 const NO_DELETION_CLAIM: AtsFailureReason[] = ["rate-limited", "too-large", "not-pdf", "error", "timed-out"];
@@ -54,17 +52,8 @@ const Working = ({ label }: { label: string }) => (
   </div>
 );
 
-const TryAnother = ({ onReset, children }: { onReset: () => void; children: ReactNode }) => (
-  <Button variant="outline" onClick={onReset}>
-    <RotateCwIcon aria-hidden />
-    {children}
-  </Button>
-);
-
 /** The right-hand side: a working state, then what a simple parser would see, or why it couldn't. */
-export const ResultPanel = ({ parse, onReset }: ResultPanelProps) => {
-  // Focus moves to the verdict when the result lands, which announces it; if it didn't move, the live region does.
-  const [focusKept, setFocusKept] = useState(false);
+export const ResultPanel = ({ parse, onReset, focusKept = false }: ResultPanelProps) => {
   let content: ReactNode;
   if (parse.status === "uploading") {
     content = <Working label="Uploading…" />;
@@ -80,21 +69,10 @@ export const ResultPanel = ({ parse, onReset }: ResultPanelProps) => {
       </div>
     );
   } else {
-    content = (
-      <ParseResult
-        result={parse.result}
-        onFocusKept={() => setFocusKept(true)}
-        actions={
-          <div className="flex flex-col items-start gap-3">
-            <TryAnother onReset={onReset}>Check another CV</TryAnother>
-            <PrivacyNote />
-          </div>
-        }
-      />
-    );
+    content = <ParseResult result={parse.result} />;
   }
 
-  // A finished result shows the note beside its own button.
+  // A finished result shows the note in the bar above.
   const stored =
     parse.status === "uploading" ||
     parse.status === "processing" ||
