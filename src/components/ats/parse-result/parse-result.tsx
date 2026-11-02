@@ -34,8 +34,15 @@ const TabMissing = ({ label }: { label: string }) => (
   </>
 );
 
+// A pill, so the number reads as a count rather than part of the tab's name.
 const TabCount = ({ count }: { count: number }) =>
-  count > 0 ? <span className="text-muted-foreground">{count}</span> : <TabMissing label="none found" />;
+  count > 0 ? (
+    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground/5 px-1.5 text-xs tabular-nums">
+      {count}
+    </span>
+  ) : (
+    <TabMissing label="none found" />
+  );
 
 /** What a simple parser picked out, for the right-hand side. */
 export const ParseResult = ({ result }: { result: Result }) => {

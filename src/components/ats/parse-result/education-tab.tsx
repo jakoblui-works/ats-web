@@ -7,7 +7,7 @@ export const EducationTab = ({ education }: { education: ParseResultOutput["educ
   return (
     <ul className="flex flex-col gap-2">
       {education.map((entry, index) => (
-        <li key={index} className="flex flex-col gap-0.5 rounded-md border p-3">
+        <li key={index} className="flex flex-col gap-0.5 rounded-md border bg-surface p-3">
           <span className="font-medium break-words">{entry.qualification || <Missing />}</span>
           <span className="text-sm break-words">{entry.institution || <Missing />}</span>
           <span className="text-sm text-muted-foreground">

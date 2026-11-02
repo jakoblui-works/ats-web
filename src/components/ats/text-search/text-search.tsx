@@ -1,5 +1,7 @@
 import { Fragment, useId, useMemo, useState } from "react";
 
+import { Input } from "@/components/ui/input";
+
 import { findMatches, MAX_TERM_LENGTH } from "./find-matches";
 
 type TextSearchProps = { text: string };
@@ -35,7 +37,7 @@ export const TextSearch = ({ text }: TextSearchProps) => {
         <label htmlFor={inputId} className="text-sm font-medium">
           Search the text
         </label>
-        <input
+        <Input
           id={inputId}
           type="search"
           value={term}
@@ -43,7 +45,6 @@ export const TextSearch = ({ text }: TextSearchProps) => {
           onChange={(event) => setTerm(event.target.value)}
           placeholder="A word or phrase from the job ad"
           autoComplete="off"
-          className="h-9 w-full rounded-md border bg-transparent px-3 text-sm"
         />
         <p aria-live="polite" data-testid="search-result" className="min-h-5 text-sm text-muted-foreground">
           {searching && summary(matches.length)}

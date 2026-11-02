@@ -8,3 +8,10 @@ window.matchMedia ??= (query: string) =>
     addEventListener: () => {},
     removeEventListener: () => {},
   }) as unknown as MediaQueryList;
+
+// Nor `ResizeObserver`, which `useMoreBelow` uses. jsdom has no layout, so nothing would ever change size anyway.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};

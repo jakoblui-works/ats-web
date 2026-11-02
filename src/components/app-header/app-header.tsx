@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router";
 // own (a menu, a toggle); it's empty until the site needs one.
 export const AppHeader = () => {
   return (
-    <SiteHeader current="ats" homeLink={<Link to="/" />}>
+    <SiteHeader current="ats" homeLink={<Link to="/" />} className="bg-surface">
       <ThemeToggle />
     </SiteHeader>
   );

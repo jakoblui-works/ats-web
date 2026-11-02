@@ -42,7 +42,8 @@ const Working = ({ label }: { label: string }) => (
       <Spinner aria-hidden className="size-6" />
       <p>{label}</p>
     </div>
-    <div aria-hidden className="flex flex-col gap-4">
+    {/* On the page, not in a box: light mode's muted is the page's grey, so they take cv-web's page-level tone. */}
+    <div aria-hidden className="flex flex-col gap-4 *:bg-input/60 dark:*:bg-muted">
       <Skeleton className="h-8 w-3/4" />
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-5/6" />
@@ -61,7 +62,7 @@ export const ResultPanel = ({ parse, onReset, focusKept = false }: ResultPanelPr
     content = <Working label="Reading your CV…" />;
   } else if (parse.status === "failed") {
     content = (
-      <div className="flex flex-col items-center gap-4 rounded-md border p-6 text-center">
+      <div className="flex flex-col items-center gap-4 rounded-md border bg-surface p-6 text-center">
         <p role="alert" className="text-destructive">
           {FAILURE_MESSAGES[parse.reason]}
         </p>

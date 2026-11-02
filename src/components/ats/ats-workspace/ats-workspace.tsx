@@ -5,6 +5,7 @@ import { PdfPanel } from "@/components/ats/pdf-panel/pdf-panel";
 import { ResultBar } from "@/components/ats/result-bar/result-bar";
 import { ResultPanel } from "@/components/ats/result-panel/result-panel";
 import { Separator } from "@/components/ui/separator";
+import { useMoreBelow } from "@/hooks/use-more-below";
 
 type AtsWorkspaceProps = {
   parse: AtsParse;
@@ -21,6 +22,7 @@ type AtsWorkspaceProps = {
 export const AtsWorkspace = ({ parse, fileUrl, inlinePdf, pdfUnavailable, onReset }: AtsWorkspaceProps) => {
   // Focus moves to the status when the result lands, which announces it; if it didn't move, the live region does.
   const [focusKept, setFocusKept] = useState(false);
+  const { scrollRef, contentRef, moreBelow } = useMoreBelow<HTMLDivElement, HTMLDivElement>();
 
   return (
     <div className="flex flex-col gap-6 lg:h-full">
@@ -32,8 +34,15 @@ export const AtsWorkspace = ({ parse, fileUrl, inlinePdf, pdfUnavailable, onRese
           <PdfPanel url={fileUrl} inline={inlinePdf} unavailable={pdfUnavailable} />
         </div>
         <Separator orientation="vertical" className="hidden lg:block" />
-        <div className="order-1 min-w-0 lg:order-0 lg:-m-1 lg:overflow-y-auto lg:p-1">
-          <ResultPanel parse={parse} onReset={onReset} focusKept={focusKept} />
+        {/* Scrolls on its own on wide screens, so the PDF stays in view; the bottom fades while there's more below. */}
+        <div
+          ref={scrollRef}
+          data-more-below={moreBelow || undefined}
+          className="order-1 min-w-0 lg:order-0 lg:-m-1 lg:overflow-y-auto lg:scroll-pb-12 lg:p-1 lg:data-more-below:mask-[linear-gradient(to_bottom,black_calc(100%-3rem),transparent)]"
+        >
+          <div ref={contentRef}>
+            <ResultPanel parse={parse} onReset={onReset} focusKept={focusKept} />
+          </div>
         </div>
       </div>
     </div>

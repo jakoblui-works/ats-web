@@ -15,7 +15,7 @@ export const ExperienceTab = ({ experience, experience_months }: ExperienceTabPr
           const length = formatMonths(job.months);
           const about = isYearOnly(job.start) || isYearOnly(job.end);
           return (
-            <li key={index} className="flex flex-col gap-0.5 rounded-md border p-3">
+            <li key={index} className="flex flex-col gap-0.5 rounded-md border bg-surface p-3">
               <span className="font-medium break-words">{job.title || <Missing />}</span>
               <span className="text-sm break-words">{job.company || <Missing />}</span>
               <span className="text-sm text-muted-foreground">
