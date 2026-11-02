@@ -24,7 +24,9 @@ const FAILURE_MESSAGES: Record<AtsFailureReason, string> = {
   error: "Something went wrong while reading the PDF.",
 };
 
-const PRIVACY_NOTE = "Your file is deleted right after it is parsed, and the result expires within an hour.";
+const PrivacyNote = () => (
+  <p className="text-sm">Your file is deleted right after it is parsed, and the result expires within an hour.</p>
+);
 
 /** Failures where the file was turned away before it was stored, or where the code can't know it was deleted. */
 const NO_DELETION_CLAIM: AtsFailureReason[] = ["rate-limited", "too-large", "not-pdf", "error", "timed-out"];
@@ -79,16 +81,24 @@ export const ResultPanel = ({ parse, onReset }: ResultPanelProps) => {
     );
   } else {
     content = (
-      <>
-        <ParseResult result={parse.result} onFocusKept={() => setFocusKept(true)} />
-        <div>
-          <TryAnother onReset={onReset}>Check another CV</TryAnother>
-        </div>
-      </>
+      <ParseResult
+        result={parse.result}
+        onFocusKept={() => setFocusKept(true)}
+        actions={
+          <div className="flex flex-col items-start gap-3">
+            <TryAnother onReset={onReset}>Check another CV</TryAnother>
+            <PrivacyNote />
+          </div>
+        }
+      />
     );
   }
 
-  const stored = parse.status !== "failed" || !NO_DELETION_CLAIM.includes(parse.reason);
+  // A finished result shows the note beside its own button.
+  const stored =
+    parse.status === "uploading" ||
+    parse.status === "processing" ||
+    (parse.status === "failed" && !NO_DELETION_CLAIM.includes(parse.reason));
 
   return (
     <div className="flex flex-col gap-6">
@@ -98,7 +108,7 @@ export const ResultPanel = ({ parse, onReset }: ResultPanelProps) => {
         {parse.status === "done" && !focusKept ? "" : ANNOUNCEMENTS[parse.status]}
       </p>
       {content}
-      {stored && <p className="text-sm text-muted-foreground">{PRIVACY_NOTE}</p>}
+      {stored && <PrivacyNote />}
     </div>
   );
 };

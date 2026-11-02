@@ -1,5 +1,5 @@
 import { CircleCheckIcon, EyeOffIcon, TriangleAlertIcon, type LucideIcon } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import type { ParseResultOutput } from "@/api/generated/model";
 import { ParseSummary, summaryRows } from "@/components/ats/parse-summary/parse-summary";
@@ -53,9 +53,11 @@ type ParseResultProps = {
   result: Result;
   /** Called if focus was left where it was (the visitor was already somewhere), so the result needs announcing. */
   onFocusKept?: () => void;
+  /** Shown above the tabs. */
+  actions?: ReactNode;
 };
 
-export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
+export const ParseResult = ({ result, onFocusKept, actions }: ParseResultProps) => {
   // The result replaces a working state, so keyboard and screen reader users start at the verdict.
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -106,6 +108,8 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
           </ul>
         </section>
       )}
+
+      {actions}
 
       {/* Nothing readable came through, so there is nothing to show in the tabs. */}
       {result.visibility !== "invisible" && (
