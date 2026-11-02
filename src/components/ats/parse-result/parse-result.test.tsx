@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { ParseResultOutput } from "@/api/generated/model";
@@ -7,6 +7,12 @@ import { invisibleResult, readableResult } from "@/components/ats/fixtures";
 import { ParseResult } from "./parse-result";
 
 const MISSING = "Not found";
+
+const showTab = (result: ParseResultOutput, name: RegExp) => {
+  const view = render(<ParseResult result={result} />);
+  fireEvent.click(screen.getByRole("tab", { name }));
+  return view;
+};
 
 const fieldValue = (label: string) => screen.getByText(label, { selector: "dt" }).nextElementSibling as HTMLElement;
 
@@ -29,16 +35,6 @@ describe("ParseResult shows a missing field as missing", () => {
     render(<ParseResult result={readableResult} />);
     expect(fieldValue("Email")).toHaveTextContent(readableResult.contact.email!);
     expect(fieldValue("Email")).not.toHaveTextContent(MISSING);
-  });
-
-  it("doesn't render a section with no text blank", () => {
-    render(
-      <ParseResult
-        result={{ ...readableResult, sections: [{ kind: "other", heading: "Interests", text: "" }] }}
-      />,
-    );
-    const item = screen.getByRole("heading", { name: "Interests" }).closest("li")!;
-    expect(item.textContent).toMatch(/no text/i);
   });
 
   it("hides the character count when nothing is readable, and shows it otherwise", () => {
@@ -65,11 +61,11 @@ const withJobs = (experience: ParseResultOutput["experience"], experience_months
   experience_months,
 });
 
-const experienceBlock = () => screen.getByRole("heading", { name: "Experience" }).parentElement as HTMLElement;
+const experienceBlock = () => screen.getByRole("tabpanel");
 
 describe("ParseResult experience", () => {
   it("shows a row per job with title, dates as written and length", () => {
-    render(<ParseResult result={withJobs([job(), job({ title: "Lead", start: "Apr 2022", end: "Present", months: 12 })], 39)} />);
+    showTab(withJobs([job(), job({ title: "Lead", start: "Apr 2022", end: "Present", months: 12 })], 39), /^Experience/);
     const items = within(experienceBlock()).getAllByRole("listitem");
     expect(items).toHaveLength(2);
     expect(items[0]).toHaveTextContent("Engineer");
@@ -82,24 +78,24 @@ describe("ParseResult experience", () => {
     ["null", null],
     ["empty", ""],
   ])("shows a %s title as not found", (_name, title) => {
-    render(<ParseResult result={withJobs([job({ title, company: "Invented Ltd" })], 27)} />);
+    showTab(withJobs([job({ title, company: "Invented Ltd" })], 27), /^Experience/);
     expect(within(experienceBlock()).getByText(MISSING)).toBeInTheDocument();
   });
 
   it("says about on a year-only job and on the total", () => {
-    render(<ParseResult result={withJobs([job({ start: "2012", end: "2014", months: 24 })], 24)} />);
+    showTab(withJobs([job({ start: "2012", end: "2014", months: 24 })], 24), /^Experience/);
     expect(within(experienceBlock()).getAllByText(/about 2 yrs/)).toHaveLength(2);
     expect(screen.getByText(/^Total: about 2 yrs/)).toBeInTheDocument();
   });
 
   it("doesn't say about when every date has a month", () => {
-    render(<ParseResult result={withJobs([job()], 27)} />);
+    showTab(withJobs([job()], 27), /^Experience/);
     expect(within(experienceBlock()).queryByText(/about/i)).toBeNull();
     expect(screen.getByText("Total: 2 yrs 3 mos")).toBeInTheDocument();
   });
 
   it("uses singular forms for one year and one month", () => {
-    render(<ParseResult result={withJobs([job({ months: 13 }), job({ months: 12 }), job({ months: 1 })], 25)} />);
+    showTab(withJobs([job({ months: 13 }), job({ months: 12 }), job({ months: 1 })], 25), /^Experience/);
     const items = within(experienceBlock()).getAllByRole("listitem");
     expect(items[0]).toHaveTextContent("1 yr 1 mo");
     expect(items[1]!.textContent).toMatch(/, 1 yr$/);
@@ -108,7 +104,7 @@ describe("ParseResult experience", () => {
   });
 
   it("shows no length for 0 or null months, and no total for a null total", () => {
-    render(<ParseResult result={withJobs([job({ months: 0 }), job({ months: null })], null)} />);
+    showTab(withJobs([job({ months: 0 }), job({ months: null })], null), /^Experience/);
     const items = within(experienceBlock()).getAllByRole("listitem");
     for (const item of items) expect(item.textContent).not.toMatch(/yr|mo\b/);
     expect(screen.queryByText(/^Total/)).toBeNull();
@@ -116,12 +112,12 @@ describe("ParseResult experience", () => {
   });
 
   it("explains that overlapping jobs count once", () => {
-    render(<ParseResult result={withJobs([job()], 27)} />);
+    showTab(withJobs([job()], 27), /^Experience/);
     expect(screen.getByText(/overlap/i)).toBeInTheDocument();
   });
 
   it("shows a missing block when there are no jobs", () => {
-    render(<ParseResult result={invisibleResult} />);
+    showTab(withJobs([], null), /^Experience/);
     expect(within(experienceBlock()).getByText(/not found|no jobs/i)).toBeInTheDocument();
     expect(screen.queryByText(/^Total/)).toBeNull();
   });
@@ -137,37 +133,23 @@ describe("ParseResult shows name, employer, and education", () => {
   });
 
   it("shows an employer under the title, and marks it missing when absent", () => {
-    const { unmount } = render(<ParseResult result={{ ...readableResult, experience: [job({ company: "Invented Ltd" })] }} />);
+    const { unmount } = showTab({ ...readableResult, experience: [job({ company: "Invented Ltd" })] }, /^Experience/);
     expect(screen.getByText("Invented Ltd")).toBeInTheDocument();
     unmount();
-    render(<ParseResult result={{ ...readableResult, experience: [job({ company: null })] }} />);
+    showTab({ ...readableResult, experience: [job({ company: null })] }, /^Experience/);
     const item = screen.getByText("Engineer").closest("li")!;
     expect(item.children[1]).toHaveTextContent(MISSING);
   });
 
   it("shows an education row with a missing part as not found", () => {
-    render(
-      <ParseResult
-        result={{
-          ...readableResult,
-          education: [{ qualification: null, institution: "Sample College", start: "2010", end: "2012" }],
-        }}
-      />,
-    );
+    showTab({ ...readableResult, education: [{ qualification: null, institution: "Sample College", start: "2010", end: "2012" }], }, /^Education/);
     const item = screen.getByText("Sample College").closest("li")!;
     expect(item).toHaveTextContent(MISSING);
     expect(item).toHaveTextContent("2010 to 2012");
   });
 
   it("shows a lone year without a made-up start", () => {
-    render(
-      <ParseResult
-        result={{
-          ...readableResult,
-          education: [{ qualification: "Diploma", institution: "Sample College", start: null, end: "2015" }],
-        }}
-      />,
-    );
+    showTab({ ...readableResult, education: [{ qualification: "Diploma", institution: "Sample College", start: null, end: "2015" }], }, /^Education/);
     const item = screen.getByText("Sample College").closest("li")!;
     expect(item).toHaveTextContent("2015");
     expect(item).not.toHaveTextContent(MISSING);
@@ -175,7 +157,7 @@ describe("ParseResult shows name, employer, and education", () => {
   });
 
   it("says so when there is no education", () => {
-    render(<ParseResult result={invisibleResult} />);
+    showTab({ ...readableResult, education: [] }, /^Education/);
     expect(screen.getByText("No education found")).toBeInTheDocument();
   });
 });
@@ -194,5 +176,48 @@ describe("ParseResult summary", () => {
     const { container } = render(<ParseResult result={missing} />);
     expect(screen.getByText(/some details weren't picked out/)).toBeInTheDocument();
     expect(container.querySelector("[class*=emerald]")).toBeNull();
+  });
+});
+
+describe("ParseResult tabs", () => {
+  it("shows no tabs when nothing could be read, but keeps the verdict and warnings", () => {
+    render(<ParseResult result={invisibleResult} />);
+    expect(screen.queryByRole("tab")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "What it picked out" })).toBeNull();
+    expect(screen.getByRole("heading", { level: 2 })).toBeInTheDocument();
+    expect(screen.getByText("Things to look at")).toBeInTheDocument();
+  });
+
+  it("counts jobs and education in the tab names, including none", () => {
+    render(<ParseResult result={{ ...readableResult, experience: [], education: [] }} />);
+    expect(screen.getByRole("tab", { name: "Experience (0)" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Education (0)" })).toBeInTheDocument();
+  });
+
+  it("lists the headings it found in the text tab", () => {
+    showTab(
+      {
+        ...readableResult,
+        sections: [
+          { kind: "experience", heading: "Work history", text: "" },
+          { kind: "other", heading: "Interests", text: "" },
+        ],
+      },
+      /^Text/,
+    );
+    expect(within(screen.getByRole("tabpanel")).getByText("Work history, Interests")).toBeInTheDocument();
+  });
+
+  it("says so when it found no headings", () => {
+    showTab({ ...readableResult, sections: [] }, /^Text/);
+    expect(within(screen.getByRole("tabpanel")).getByText("None")).toBeInTheDocument();
+  });
+
+  it("keeps a search when the visitor looks at another tab and comes back", () => {
+    showTab(readableResult, /^Text/);
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "engineer" } });
+    fireEvent.click(screen.getByRole("tab", { name: /^Contact/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Text/ }));
+    expect(screen.getByRole("searchbox")).toHaveValue("engineer");
   });
 });

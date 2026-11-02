@@ -11,7 +11,7 @@ describe("ParseSummary", () => {
   it("marks every row found, with counts for jobs and education", () => {
     render(<ParseSummary result={readableResult} />);
     expect(screen.getAllByRole("listitem")).toHaveLength(5);
-    expect(screen.queryByText("Not found")).toBeNull();
+    expect(screen.queryByText("not found")).toBeNull();
     expect(row("Name")).toHaveTextContent("Found");
     expect(row("Jobs")).toHaveTextContent(`${readableResult.experience.length} found`);
     expect(row("Education")).toHaveTextContent(`${readableResult.education.length} found`);
@@ -20,19 +20,19 @@ describe("ParseSummary", () => {
   it("says in text which rows are missing, and counts the rest", () => {
     render(<ParseSummary result={partialResult} />);
     for (const label of ["Name", "Email", "Phone", "Jobs", "Education"]) {
-      expect(row(label)).toHaveTextContent("Not found");
+      expect(row(label)).toHaveTextContent("not found");
     }
   });
 
   it("counts jobs when some are found", () => {
     render(<ParseSummary result={{ ...partialResult, experience: readableResult.experience }} />);
     expect(row("Jobs")).toHaveTextContent(`${readableResult.experience.length} found`);
-    expect(row("Jobs")).not.toHaveTextContent("Not found");
+    expect(row("Jobs")).not.toHaveTextContent("not found");
   });
 
   it("shows everything missing when nothing could be read", () => {
     render(<ParseSummary result={invisibleResult} />);
-    expect(within(screen.getByRole("list")).getAllByText("Not found")).toHaveLength(5);
+    expect(within(screen.getByRole("list")).getAllByText("not found")).toHaveLength(5);
   });
 
   it("treats an empty string like a missing value", () => {
@@ -41,7 +41,7 @@ describe("ParseSummary", () => {
         result={{ ...readableResult, contact: { ...readableResult.contact, email: "", phone: "" } }}
       />,
     );
-    expect(row("Email")).toHaveTextContent("Not found");
-    expect(row("Phone")).toHaveTextContent("Not found");
+    expect(row("Email")).toHaveTextContent("not found");
+    expect(row("Phone")).toHaveTextContent("not found");
   });
 });

@@ -21,7 +21,7 @@ export const AtsWorkspace = ({ parse, fileUrl, inlinePdf, pdfUnavailable, onRese
       <PdfPanel url={fileUrl} inline={inlinePdf} unavailable={pdfUnavailable} />
     </div>
     <Separator orientation="vertical" className="hidden lg:block" />
-    <div className="order-1 lg:order-0 lg:-m-1 lg:overflow-y-auto lg:p-1">
+    <div className="order-1 min-w-0 lg:order-0 lg:-m-1 lg:overflow-y-auto lg:p-1">
       <ResultPanel parse={parse} onReset={onReset} />
     </div>
   </div>

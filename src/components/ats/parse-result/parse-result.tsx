@@ -1,12 +1,15 @@
 import { CircleCheckIcon, EyeOffIcon, TriangleAlertIcon, type LucideIcon } from "lucide-react";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
 
 import type { ParseResultOutput } from "@/api/generated/model";
 import { ParseSummary, summaryRows } from "@/components/ats/parse-summary/parse-summary";
-import { TextSearch } from "@/components/ats/text-search/text-search";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
-import { formatMonths, isYearOnly } from "./format-months";
+import { ContactTab } from "./contact-tab";
+import { EducationTab } from "./education-tab";
+import { ExperienceTab } from "./experience-tab";
+import { TextTab } from "./text-tab";
 
 type Result = ParseResultOutput;
 type Visibility = Result["visibility"];
@@ -43,23 +46,8 @@ const WARNING_MESSAGES: Record<Warning, string> = {
   unparsed_dates: "Some dates could not be read.",
 };
 
-const Missing = ({ children = "Not found" }: { children?: string }) => (
-  <span className="text-muted-foreground italic">{children}</span>
-);
-
-const Section = ({ title, children }: { title: string; children: ReactNode }) => (
-  <section className="flex flex-col gap-2">
-    <h3 className="text-sm font-semibold">{title}</h3>
-    {children}
-  </section>
-);
-
-const Field = ({ label, value }: { label: string; value: string | null }) => (
-  <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
-    <dt className="w-24 shrink-0 text-sm text-muted-foreground">{label}</dt>
-    <dd className="min-w-0 break-words">{value || <Missing />}</dd>
-  </div>
-);
+// The open panel is a keyboard stop, so it needs a visible focus style.
+const TAB_PANEL = "rounded-md pt-2 text-base focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
 type ParseResultProps = {
   result: Result;
@@ -91,7 +79,6 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
           }
         : { ...base, text: "Its text came through, but some details weren't picked out. See the list below." };
   const Icon = verdict.icon;
-  const { contact } = result;
 
   return (
     <div className="flex flex-col gap-6">
@@ -107,139 +94,43 @@ export const ParseResult = ({ result, onFocusKept }: ParseResultProps) => {
         </div>
       </div>
 
-      <ParseSummary result={result} />
+      {result.visibility !== "invisible" && <ParseSummary result={result} />}
 
       {result.warnings.length > 0 && (
-        <Section title="Things to look at">
+        <section className="flex flex-col gap-2">
+          <h3 className="text-sm font-semibold">Things to look at</h3>
           <ul className="flex list-disc flex-col gap-1 pl-5">
             {result.warnings.map((warning) => (
               <li key={warning}>{WARNING_MESSAGES[warning]}</li>
             ))}
           </ul>
-        </Section>
+        </section>
       )}
 
-      <Section title="Contact">
-        <dl className="flex flex-col gap-2">
-          <Field label="Name" value={contact.name} />
-          <Field label="Email" value={contact.email} />
-          <Field label="Phone" value={contact.phone} />
-          <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
-            <dt className="w-24 shrink-0 text-sm text-muted-foreground">Links</dt>
-            <dd className="min-w-0">
-              {contact.links.length > 0 ? (
-                <ul className="flex flex-col gap-0.5">
-                  {contact.links.map((link, index) => (
-                    <li key={index} className="break-all">
-                      {link}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <Missing />
-              )}
-            </dd>
-          </div>
-        </dl>
-      </Section>
-
-      <Section title="Experience">
-        {result.experience.length > 0 ? (
-          <>
-            <ul className="flex flex-col gap-2">
-              {result.experience.map((job, index) => {
-                const length = formatMonths(job.months);
-                const about = isYearOnly(job.start) || isYearOnly(job.end);
-                return (
-                  <li key={index} className="flex flex-col gap-0.5 rounded-md border p-3">
-                    <span className="font-medium break-words">{job.title || <Missing />}</span>
-                    <span className="text-sm break-words">{job.company || <Missing />}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {job.start || "?"} to {job.end || "?"}
-                      {length && `, ${about ? "about " : ""}${length}`}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-            {formatMonths(result.experience_months) && (
-              <>
-                <p className="text-sm font-medium">
-                  Total: {result.experience.some((job) => isYearOnly(job.start) || isYearOnly(job.end)) && "about "}
-                  {formatMonths(result.experience_months)}
-                </p>
-                <p className="text-sm text-muted-foreground">Jobs that overlap are counted once in the total.</p>
-              </>
-            )}
-          </>
-        ) : (
-          <Missing>No jobs found</Missing>
-        )}
-      </Section>
-
-      <Section title="Education">
-        {result.education.length > 0 ? (
-          <ul className="flex flex-col gap-2">
-            {result.education.map((entry, index) => (
-              <li key={index} className="flex flex-col gap-0.5 rounded-md border p-3">
-                <span className="font-medium break-words">{entry.qualification || <Missing />}</span>
-                <span className="text-sm break-words">{entry.institution || <Missing />}</span>
-                <span className="text-sm text-muted-foreground">
-                  {entry.start || entry.end ? (
-                    <>
-                      {entry.start}
-                      {entry.start && entry.end && entry.start !== entry.end && ` to ${entry.end}`}
-                      {!entry.start && entry.end}
-                    </>
-                  ) : (
-                    <Missing />
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Missing>No education found</Missing>
-        )}
-      </Section>
-
-      <Section title="Sections">
-        {result.sections.length > 0 ? (
-          <ul className="flex flex-col gap-2">
-            {result.sections.map((section, index) => (
-              <li key={index} className="flex flex-col gap-1 rounded-md border p-3">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <h4 className="font-medium break-words">{section.heading}</h4>
-                  <span className="text-xs text-muted-foreground">{section.kind}</span>
-                </div>
-                {section.text.trim() ? (
-                  <p className="text-sm break-words whitespace-pre-wrap">{section.text}</p>
-                ) : (
-                  <Missing>No text under this heading</Missing>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Missing>No sections found</Missing>
-        )}
-      </Section>
-
-      <p className="text-sm text-muted-foreground">
-        Compare the text below with your PDF. If it reads in a jumbled order, a simple parser reads it that way too.
-        Two-column CVs are the usual cause.
-      </p>
-
-      <details open className="rounded-md border">
-        <summary className="cursor-pointer p-3 text-sm font-semibold">All the text it read</summary>
-        <div className="border-t p-3">
-          {result.text ? (
-            <TextSearch text={result.text} />
-          ) : (
-            <Missing>No text</Missing>
-          )}
-        </div>
-      </details>
+      {/* Nothing readable came through, so there is nothing to show in the tabs. */}
+      {result.visibility !== "invisible" && (
+        <Tabs defaultValue="contact">
+          <TabsList className="w-full justify-start overflow-x-auto">
+            <TabsTrigger value="contact">Contact</TabsTrigger>
+            <TabsTrigger value="experience">Experience ({result.experience.length})</TabsTrigger>
+            <TabsTrigger value="education">Education ({result.education.length})</TabsTrigger>
+            <TabsTrigger value="text">Text</TabsTrigger>
+          </TabsList>
+          <TabsContent value="contact" className={TAB_PANEL}>
+            <ContactTab contact={result.contact} />
+          </TabsContent>
+          <TabsContent value="experience" className={TAB_PANEL}>
+            <ExperienceTab experience={result.experience} experience_months={result.experience_months} />
+          </TabsContent>
+          <TabsContent value="education" className={TAB_PANEL}>
+            <EducationTab education={result.education} />
+          </TabsContent>
+          {/* Stays mounted so a search survives a look at another tab. */}
+          <TabsContent value="text" keepMounted className={TAB_PANEL}>
+            <TextTab sections={result.sections} text={result.text} />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 };

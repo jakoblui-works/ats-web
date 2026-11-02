@@ -13,21 +13,21 @@ export const summaryRows = (result: ParseResultOutput): Row[] => [
   { label: "Education", found: result.education.length > 0, count: result.education.length },
 ];
 
-/** A plain checklist; each row's state is in its text, not only in its icon. */
+/** A compact checklist; each row's state is in its text, not only in its icon. */
 export const ParseSummary = ({ result }: { result: ParseResultOutput }) => (
   <section className="flex flex-col gap-2" aria-labelledby="parse-summary-title">
     <h3 id="parse-summary-title" className="text-sm font-semibold">
       What it picked out
     </h3>
-    <ul className="flex flex-col gap-1">
+    <ul className="flex flex-wrap gap-x-4 gap-y-1">
       {summaryRows(result).map(({ label, found, count }) => {
         const Icon = found ? CheckIcon : XIcon;
         return (
-          <li key={label} className="flex items-center gap-2 text-sm">
+          <li key={label} className="flex items-center gap-1.5 text-sm">
             <Icon aria-hidden className={found ? "size-4 shrink-0" : "size-4 shrink-0 text-muted-foreground"} />
             <span>{label}</span>
             <span className={found ? "text-muted-foreground" : "text-muted-foreground italic"}>
-              {!found ? "Not found" : count === undefined ? <span className="sr-only">Found</span> : `${count} found`}
+              {!found ? "not found" : count === undefined ? <span className="sr-only">Found</span> : `${count} found`}
             </span>
           </li>
         );

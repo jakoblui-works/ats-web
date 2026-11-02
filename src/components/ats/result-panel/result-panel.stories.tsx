@@ -59,7 +59,7 @@ export const Partial: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("heading", { name: /only part of this/i })).toBeVisible();
     await expect(canvas.getByRole("heading", { name: "What it picked out" })).toBeVisible();
-    await expect(canvas.getAllByText("Not found").length).toBeGreaterThan(0);
+    await expect(canvas.getAllByText("not found").length).toBeGreaterThan(0);
     await expect(canvas.getByText("Things to look at")).toBeVisible();
     // Missing fields are shown as missing.
     await expect(canvas.getAllByText("Not found").length).toBeGreaterThan(0);
