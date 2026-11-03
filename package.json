@@ -15,6 +15,7 @@
     "build-storybook": "storybook build",
     "generate:api": "orval",
     "fetch:parser": "node scripts/fetch-parser-assets.mjs",
+    "generate:schema": "node scripts/generate-parse-outcome.mjs",
     "prebuild": "node scripts/fetch-parser-assets.mjs",
     "predev": "node scripts/fetch-parser-assets.mjs",
     "predev:prod": "node scripts/fetch-parser-assets.mjs",
