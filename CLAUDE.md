@@ -36,7 +36,7 @@ React 19, Vite, TanStack Router (file routes in `src/routes`; `routeTree.gen.ts`
 
 ## The parser's assets
 - Run by `prebuild`, `predev` and `prestart`, or by hand with `pnpm fetch:parser`.
-- **`ATS_PARSER_DIST=<dir>`** uses a local parser build (its wheel and schema) instead of the pinned release. The pinned release's sha256 is `null` until ats-parser `v0.1.0` is released, so builds need `ATS_PARSER_DIST` until then.
+- **`ATS_PARSER_DIST=<dir>`** uses a local parser build (its wheel and schema) instead of the pinned release (ats-parser `v0.1.0`).
 - **Bumping the parser:** make a new ats-parser release, update the URLs and sha256 in `parser-assets.json`, run `pnpm fetch:parser`, then `pnpm generate:schema`, and fix what `tsc` flags.
 - **Don't run two fetches at once** (this only happens in dev: run it again or restart `pnpm dev`).
 
