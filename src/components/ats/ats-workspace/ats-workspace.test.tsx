@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { AtsFailureReason, AtsParse } from "@/api/ats";
+import type { AtsFailureReason, AtsParse } from "@/parser/use-ats-parse";
 import { readableResult } from "@/components/ats/fixtures";
 
 import { AtsWorkspace } from "./ats-workspace";
@@ -12,7 +12,7 @@ const workspace = (parse: AtsParse, onReset: () => void = () => {}) => (
 
 const DONE: AtsParse = { status: "done", result: readableResult };
 const STORED: AtsFailureReason[] = ["too-many-pages", "encrypted", "corrupt"];
-const NOT_STORED: AtsFailureReason[] = ["rate-limited", "too-large", "not-pdf", "error", "timed-out"];
+const NOT_STORED: AtsFailureReason[] = ["too-large", "not-pdf", "error", "timed-out"];
 
 afterEach(() => {
   (document.activeElement as HTMLElement | null)?.blur();
@@ -37,15 +37,15 @@ describe("AtsWorkspace announcing a result", () => {
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
   });
 
-  it("doesn't take focus when it appears while uploading", () => {
-    render(workspace({ status: "uploading" }));
+  it("doesn't take focus when it appears while loading", () => {
+    render(workspace({ status: "loading" }));
     expect(document.activeElement).toBe(document.body);
   });
 });
 
 describe("AtsWorkspace in every state", () => {
   it.each([
-    ["uploading", { status: "uploading" } as AtsParse],
+    ["loading", { status: "loading" } as AtsParse],
     ["processing", { status: "processing" } as AtsParse],
     ["done", DONE],
     ...[...STORED, ...NOT_STORED].map((reason): [string, AtsParse] => [`failed (${reason})`, { status: "failed", reason }]),
@@ -61,7 +61,7 @@ describe("AtsWorkspace in every state", () => {
   });
 
   it.each([
-    ["uploading", { status: "uploading" } as AtsParse],
+    ["loading", { status: "loading" } as AtsParse],
     ["processing", { status: "processing" } as AtsParse],
     ["done", DONE],
     ...STORED.map((reason): [string, AtsParse] => [`failed (${reason})`, { status: "failed", reason }]),

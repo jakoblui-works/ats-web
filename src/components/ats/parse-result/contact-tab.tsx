@@ -1,6 +1,6 @@
 import { CheckIcon, XIcon } from "lucide-react";
 
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { ParseResult } from "@/parser/generated/parse-outcome";
 
 import { Missing } from "./missing";
 
@@ -19,7 +19,7 @@ const Field = ({ label, value }: { label: string; value: string | null }) => {
   );
 };
 
-export const ContactTab = ({ contact }: { contact: ParseResultOutput["contact"] }) => (
+export const ContactTab = ({ contact }: { contact: ParseResult["contact"] }) => (
   <dl className="flex flex-col gap-2">
     <Field label="Name" value={contact.name} />
     <Field label="Email" value={contact.email} />

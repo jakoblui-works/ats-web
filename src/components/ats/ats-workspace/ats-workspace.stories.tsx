@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, type ComponentProps } from "react";
 import { expect, fn, userEvent } from "storybook/test";
 
-import type { AtsParse } from "@/api/ats";
+import type { AtsParse } from "@/parser/use-ats-parse";
 import { readableResult, samplePdf } from "@/components/ats/fixtures";
 
 import { AtsWorkspace } from "./ats-workspace";
@@ -31,7 +31,7 @@ export default meta;
 
 type Story = StoryObj<typeof AtsWorkspace>;
 
-export const Uploading: Story = { args: { parse: { status: "uploading" } } };
+export const Loading: Story = { args: { parse: { status: "loading" } } };
 
 export const Processing: Story = { args: { parse: { status: "processing" } } };
 
@@ -44,9 +44,9 @@ export const Stacked: Story = {
   args: { parse: { status: "done", result: readableResult }, inlinePdf: false },
 };
 
-const STEPS: AtsParse[] = [{ status: "uploading" }, { status: "processing" }, { status: "done", result: readableResult }];
+const STEPS: AtsParse[] = [{ status: "loading" }, { status: "processing" }, { status: "done", result: readableResult }];
 
-/** Goes through the states of one upload, a step per click on the button below, the way a real one does. */
+/** Goes through the states of one file, a step per click on the button below, the way a real one does. */
 const ThroughTheStates = (props: Omit<ComponentProps<typeof AtsWorkspace>, "parse">) => {
   const [step, setStep] = useState(0);
   return (
@@ -62,7 +62,7 @@ const ThroughTheStates = (props: Omit<ComponentProps<typeof AtsWorkspace>, "pars
 };
 
 /**
- * Wide screens: nothing below the status bar moves from the upload to a readable result (a pass, with its extra note
+ * Wide screens: nothing below the status bar moves from loading to a readable result (a pass, with its extra note
  * line), and neither does the status heading. On phones the note may wrap to two lines while one is reserved, so
  * there's no phone version: a one-line shift is accepted there.
  */
@@ -82,7 +82,7 @@ export const NoShiftWide: Story = {
     });
     const next = canvas.getByRole("button", { name: /next state/i });
 
-    const uploading = await tops(/Uploading your CV/);
+    const loading = await tops(/Preparing the parser/);
     await userEvent.click(next);
     const processing = await tops(/Reading your CV/);
     await userEvent.click(next);
@@ -91,8 +91,8 @@ export const NoShiftWide: Story = {
     await expect(canvas.getByText(/compare the text with your pdf/i)).toBeVisible();
 
     for (const key of ["heading", "below"] as const) {
-      await expect(Math.abs(processing[key] - uploading[key])).toBeLessThanOrEqual(1);
-      await expect(Math.abs(done[key] - uploading[key])).toBeLessThanOrEqual(1);
+      await expect(Math.abs(processing[key] - loading[key])).toBeLessThanOrEqual(1);
+      await expect(Math.abs(done[key] - loading[key])).toBeLessThanOrEqual(1);
     }
   },
 };

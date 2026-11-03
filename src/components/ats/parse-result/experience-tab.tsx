@@ -1,9 +1,9 @@
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { ParseResult } from "@/parser/generated/parse-outcome";
 
 import { formatMonths, isYearOnly } from "./format-months";
 import { Missing } from "./missing";
 
-type ExperienceTabProps = Pick<ParseResultOutput, "experience" | "experience_months">;
+type ExperienceTabProps = Pick<ParseResult, "experience" | "experience_months">;
 
 export const ExperienceTab = ({ experience, experience_months }: ExperienceTabProps) => {
   if (experience.length === 0) return <Missing>No jobs found</Missing>;

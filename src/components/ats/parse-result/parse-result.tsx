@@ -1,6 +1,6 @@
 import { XIcon } from "lucide-react";
 
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { ParseResult as Result } from "@/parser/generated/parse-outcome";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ContactTab } from "./contact-tab";
@@ -9,7 +9,6 @@ import { ExperienceTab } from "./experience-tab";
 import { missingContact } from "./missing-details";
 import { TextTab } from "./text-tab";
 
-type Result = ParseResultOutput;
 type Warning = Result["warnings"][number];
 
 const PARTIAL_NOTE = "Some of your CV came through as text, and some of it may be missing or in the wrong order.";

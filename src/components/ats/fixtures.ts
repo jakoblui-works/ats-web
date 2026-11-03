@@ -1,7 +1,7 @@
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { ParseResult } from "@/parser/generated/parse-outcome";
 
-// Made-up results in the api's shape, for stories and tests. Nobody's real details.
-export const readableResult: ParseResultOutput = {
+// Made-up results in the parser's shape, for stories and tests. Nobody's real details.
+export const readableResult: ParseResult = {
   visibility: "readable",
   page_count: 2,
   character_count: 3120,
@@ -32,7 +32,7 @@ export const readableResult: ParseResultOutput = {
   warnings: [],
 };
 
-export const partialResult: ParseResultOutput = {
+export const partialResult: ParseResult = {
   ...readableResult,
   visibility: "partial",
   character_count: 640,
@@ -47,7 +47,7 @@ export const partialResult: ParseResultOutput = {
   warnings: ["little_text", "missing_contact", "missing_sections"],
 };
 
-export const invisibleResult: ParseResultOutput = {
+export const invisibleResult: ParseResult = {
   visibility: "invisible",
   page_count: 1,
   character_count: 0,

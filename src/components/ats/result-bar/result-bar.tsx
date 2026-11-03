@@ -1,8 +1,8 @@
 import { CircleCheckIcon, CircleXIcon, EyeOffIcon, TriangleAlertIcon, type LucideIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-import type { AtsFailureReason, AtsParse } from "@/api/ats";
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { AtsFailureReason, AtsParse } from "@/parser/use-ats-parse";
+import type { ParseResult } from "@/parser/generated/parse-outcome";
 import { missingDetails } from "@/components/ats/parse-result/missing-details";
 import { PrivacyNote } from "@/components/ats/privacy-note/privacy-note";
 import { TryAnother } from "@/components/ats/try-another/try-another";
@@ -15,9 +15,9 @@ type Status = { icon?: LucideIcon; tone: string; title: string; note?: string };
 const WARNING_TONE = "text-amber-600 dark:text-amber-400";
 
 /** Failures where the file was turned away before it was stored, or where the code can't know it was deleted. */
-const NO_DELETION_CLAIM: AtsFailureReason[] = ["rate-limited", "too-large", "not-pdf", "error", "timed-out"];
+const NO_DELETION_CLAIM: AtsFailureReason[] = ["too-large", "not-pdf", "error", "timed-out"];
 
-const verdictOf = (result: ParseResultOutput): Status => {
+const verdictOf = (result: ParseResult): Status => {
   if (result.visibility === "invisible") {
     return { icon: EyeOffIcon, tone: "text-destructive", title: "Not readable by a simple parser" };
   }
@@ -41,8 +41,8 @@ const verdictOf = (result: ParseResultOutput): Status => {
 
 const statusOf = (parse: AtsParse): Status => {
   switch (parse.status) {
-    case "uploading":
-      return { tone: "text-muted-foreground", title: "Uploading your CV…" };
+    case "loading":
+      return { tone: "text-muted-foreground", title: "Preparing the parser…" };
     case "processing":
       return { tone: "text-muted-foreground", title: "Reading your CV…" };
     case "failed":
@@ -59,7 +59,7 @@ type ResultBarProps = {
   onFocusKept?: () => void;
 };
 
-/** What concerns the whole page: the status, and starting again. There from the upload on, so the page doesn't shift when the result lands. */
+/** What concerns the whole page: the status, and starting again. There from the file's choice on, so the page doesn't shift when the result lands. */
 export const ResultBar = ({ parse, onReset, onFocusKept }: ResultBarProps) => {
   // The result replaces a working state, so keyboard and screen reader users start at the status.
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -75,7 +75,7 @@ export const ResultBar = ({ parse, onReset, onFocusKept }: ResultBarProps) => {
   const { icon: Icon, tone, title, note } = statusOf(parse);
   const stored = parse.status !== "failed" || !NO_DELETION_CLAIM.includes(parse.reason);
   // While it works, an empty line holds the place of a pass's note, so the page below doesn't move when one lands.
-  const working = parse.status === "uploading" || parse.status === "processing";
+  const working = parse.status === "loading" || parse.status === "processing";
 
   return (
     <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">

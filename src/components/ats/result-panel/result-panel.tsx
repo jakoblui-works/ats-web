@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { MAX_UPLOAD_BYTES, type AtsFailureReason, type AtsParse } from "@/api/ats";
+import { MAX_FILE_BYTES, type AtsFailureReason, type AtsParse } from "@/parser/use-ats-parse";
 import { ParseResult } from "@/components/ats/parse-result/parse-result";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -11,8 +11,7 @@ type ResultPanelProps = {
 };
 
 const FAILURE_MESSAGES: Record<AtsFailureReason, string> = {
-  "rate-limited": "Too many requests. Try again in a minute.",
-  "too-large": `That file is too large. The limit is ${MAX_UPLOAD_BYTES / (1024 * 1024)} MB.`,
+  "too-large": `That file is too large. The limit is ${MAX_FILE_BYTES / (1024 * 1024)} MB.`,
   "not-pdf": "That doesn't look like a PDF. Only PDF files can be checked.",
   "too-many-pages": "That PDF has too many pages. A CV should be much shorter.",
   encrypted: "That PDF is password protected, so a parser couldn't open it either.",
@@ -22,7 +21,7 @@ const FAILURE_MESSAGES: Record<AtsFailureReason, string> = {
 };
 
 const ANNOUNCEMENTS: Record<AtsParse["status"], string> = {
-  uploading: "Uploading your CV",
+  loading: "Preparing the parser",
   processing: "Reading your CV",
   done: "The result is ready",
   failed: "",
@@ -45,7 +44,7 @@ const Working = () => (
 /** The right-hand side: a working state, then what a simple parser would see, or why it couldn't. */
 export const ResultPanel = ({ parse, focusKept = false }: ResultPanelProps) => {
   let content: ReactNode;
-  if (parse.status === "uploading" || parse.status === "processing") {
+  if (parse.status === "loading" || parse.status === "processing") {
     content = <Working />;
   } else if (parse.status === "failed") {
     // "Check another CV" in the bar above is the way back.
@@ -61,7 +60,12 @@ export const ResultPanel = ({ parse, focusKept = false }: ResultPanelProps) => {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    // The page's state, for checks that run the built site: `data-reason` only when it failed.
+    <div
+      className="flex flex-col gap-6"
+      data-state={parse.status}
+      data-reason={parse.status === "failed" ? parse.reason : undefined}
+    >
       {/* One live region for every state, mounted throughout, so changes are announced. A failure
           announces itself (role="alert"). */}
       <p role="status" className="sr-only">

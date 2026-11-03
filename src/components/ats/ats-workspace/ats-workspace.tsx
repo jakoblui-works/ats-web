@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import type { AtsParse } from "@/api/ats";
+import type { AtsParse } from "@/parser/use-ats-parse";
 import { PdfPanel } from "@/components/ats/pdf-panel/pdf-panel";
 import { ResultBar } from "@/components/ats/result-bar/result-bar";
 import { ResultPanel } from "@/components/ats/result-panel/result-panel";
@@ -18,7 +18,7 @@ type AtsWorkspaceProps = {
   onReset: () => void;
 };
 
-/** After an upload: the status across the top, then the PDF on the left and the output on the right; on phones the output comes first. */
+/** Once a file is chosen: the status across the top, then the PDF on the left and the output on the right; on phones the output comes first. */
 export const AtsWorkspace = ({ parse, fileUrl, inlinePdf, pdfUnavailable, onReset }: AtsWorkspaceProps) => {
   // Focus moves to the status when the result lands, which announces it; if it didn't move, the live region does.
   const [focusKept, setFocusKept] = useState(false);

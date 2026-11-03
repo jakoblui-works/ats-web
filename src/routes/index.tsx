@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { useAtsParse } from "@/api/ats";
 import { AppHeader } from "@/components/app-header/app-header";
 import { AtsWorkspace } from "@/components/ats/ats-workspace/ats-workspace";
 import { UploadView } from "@/components/ats/upload-view/upload-view";
@@ -9,6 +8,7 @@ import { LARGE_SCREEN_QUERY, useMediaQuery } from "@/hooks/use-media-query";
 import { usePdfPreview } from "@/hooks/use-pdf-preview";
 import { useWindowFileDrop } from "@/hooks/use-window-file-drop";
 import { withViewTransition } from "@/lib/view-transition";
+import { useAtsParse } from "@/parser/use-ats-parse";
 
 const HomePage = () => {
   // The file lives in memory only, so a reload returns to the upload view.

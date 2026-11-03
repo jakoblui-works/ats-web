@@ -1,14 +1,14 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { ParseResult as Result } from "@/parser/generated/parse-outcome";
 import { invisibleResult, readableResult } from "@/components/ats/fixtures";
 
 import { ParseResult } from "./parse-result";
 
 const MISSING = "Not found";
 
-const showTab = (result: ParseResultOutput, name: RegExp) => {
+const showTab = (result: Result, name: RegExp) => {
   const view = render(<ParseResult result={result} />);
   fireEvent.click(screen.getByRole("tab", { name }));
   return view;
@@ -21,7 +21,7 @@ describe("ParseResult shows a missing field as missing", () => {
     ["null", null],
     ["an empty string", ""],
   ])("for contact fields that are %s", (_name, empty) => {
-    const result: ParseResultOutput = {
+    const result: Result = {
       ...readableResult,
       contact: { name: empty, email: empty, phone: empty, location: empty, links: [] },
     };
@@ -46,7 +46,7 @@ describe("ParseResult shows a missing field as missing", () => {
   });
 });
 
-const job = (over: Partial<ParseResultOutput["experience"][number]> = {}) => ({
+const job = (over: Partial<Result["experience"][number]> = {}) => ({
   title: "Engineer",
   company: null,
   start: "Jan 2020",
@@ -55,7 +55,7 @@ const job = (over: Partial<ParseResultOutput["experience"][number]> = {}) => ({
   ...over,
 });
 
-const withJobs = (experience: ParseResultOutput["experience"], experience_months: number | null) => ({
+const withJobs = (experience: Result["experience"], experience_months: number | null) => ({
   ...readableResult,
   experience,
   experience_months,

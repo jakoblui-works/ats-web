@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 
-import type { AtsFailureReason } from "@/api/ats";
+import type { AtsFailureReason } from "@/parser/use-ats-parse";
 import { invisibleResult, partialResult, readableResult } from "@/components/ats/fixtures";
 
 import { ResultPanel } from "./result-panel";
@@ -21,10 +21,10 @@ export default meta;
 
 type Story = StoryObj<typeof ResultPanel>;
 
-export const Uploading: Story = {
-  args: { parse: { status: "uploading" } },
+export const Loading: Story = {
+  args: { parse: { status: "loading" } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("status")).toHaveTextContent("Uploading your CV");
+    await expect(canvas.getByRole("status")).toHaveTextContent("Preparing the parser");
   },
 };
 
@@ -62,7 +62,6 @@ export const Invisible: Story = {
 
 /** What each failure's message is about. They must not overlap, so no two reasons can share a message. */
 const MESSAGE_TOPICS: Record<AtsFailureReason, RegExp> = {
-  "rate-limited": /too many requests/i,
   "too-large": /too large/i,
   "not-pdf": /doesn't look like a pdf/i,
   "too-many-pages": /too many pages/i,
@@ -88,7 +87,6 @@ const failure = (reason: AtsFailureReason): Story => ({
   },
 });
 
-export const RateLimited = failure("rate-limited");
 export const TooLarge = failure("too-large");
 export const NotPdf = failure("not-pdf");
 export const TooManyPages = failure("too-many-pages");

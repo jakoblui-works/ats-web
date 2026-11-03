@@ -1,9 +1,9 @@
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { ParseResult } from "@/parser/generated/parse-outcome";
 import { TextSearch } from "@/components/ats/text-search/text-search";
 
 import { Missing } from "./missing";
 
-type TextTabProps = Pick<ParseResultOutput, "sections" | "text"> & { pageCount: number; characterCount: number };
+type TextTabProps = Pick<ParseResult, "sections" | "text"> & { pageCount: number; characterCount: number };
 
 export const TextTab = ({ sections, text, pageCount, characterCount }: TextTabProps) => (
   <div className="flex flex-col gap-3">

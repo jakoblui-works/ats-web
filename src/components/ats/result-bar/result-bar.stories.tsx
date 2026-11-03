@@ -14,10 +14,10 @@ export default meta;
 
 type Story = StoryObj<typeof ResultBar>;
 
-export const Uploading: Story = {
-  args: { parse: { status: "uploading" } },
+export const Loading: Story = {
+  args: { parse: { status: "loading" } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("heading", { level: 2, name: /Uploading your CV/ })).toBeVisible();
+    await expect(canvas.getByRole("heading", { level: 2, name: /Preparing the parser/ })).toBeVisible();
     await expect(canvas.getByText(/deleted right after/)).toBeVisible();
     await expect(canvas.getByRole("button", { name: "Check another CV" })).toBeVisible();
   },

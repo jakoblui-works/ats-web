@@ -1,8 +1,8 @@
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { ParseResult } from "@/parser/generated/parse-outcome";
 
 // What the parser made of `public/sample-cv.pdf` (an invented CV), as the api returned it on 2026-11-02, so the
 // example on the upload page matches the sample it offers. Regenerate it when the sample or the parser changes.
-export const exampleResult: ParseResultOutput = {
+export const exampleResult: ParseResult = {
   visibility: "readable",
   page_count: 1,
   character_count: 874,

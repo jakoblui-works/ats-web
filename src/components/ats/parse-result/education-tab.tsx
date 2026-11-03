@@ -1,8 +1,8 @@
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { ParseResult } from "@/parser/generated/parse-outcome";
 
 import { Missing } from "./missing";
 
-export const EducationTab = ({ education }: { education: ParseResultOutput["education"] }) => {
+export const EducationTab = ({ education }: { education: ParseResult["education"] }) => {
   if (education.length === 0) return <Missing>No education found</Missing>;
   return (
     <ul className="flex flex-col gap-2">

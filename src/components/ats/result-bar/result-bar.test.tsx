@@ -1,26 +1,26 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { AtsFailureReason, AtsParse } from "@/api/ats";
-import type { ParseResultOutput } from "@/api/generated/model";
+import type { AtsFailureReason, AtsParse } from "@/parser/use-ats-parse";
+import type { ParseResult } from "@/parser/generated/parse-outcome";
 import { invisibleResult, partialResult, readableResult } from "@/components/ats/fixtures";
 
 import { ResultBar } from "./result-bar";
 
 const status = () => screen.getByRole("heading", { level: 2 });
-const done = (result: ParseResultOutput): AtsParse => ({ status: "done", result });
-const renderBar = (result: ParseResultOutput) => render(<ResultBar parse={done(result)} onReset={() => {}} />);
-const without = (contact: Partial<ParseResultOutput["contact"]>): ParseResultOutput => ({
+const done = (result: ParseResult): AtsParse => ({ status: "done", result });
+const renderBar = (result: ParseResult) => render(<ResultBar parse={done(result)} onReset={() => {}} />);
+const without = (contact: Partial<ParseResult["contact"]>): ParseResult => ({
   ...readableResult,
   contact: { ...readableResult.contact, ...contact },
 });
 
 /** Failures after the file was stored, and ones that turned it away (or can't know it was deleted). */
 const STORED: AtsFailureReason[] = ["too-many-pages", "encrypted", "corrupt"];
-const NOT_STORED: AtsFailureReason[] = ["rate-limited", "too-large", "not-pdf", "error", "timed-out"];
+const NOT_STORED: AtsFailureReason[] = ["too-large", "not-pdf", "error", "timed-out"];
 
 const EVERY_STATE: [string, AtsParse][] = [
-  ["uploading", { status: "uploading" }],
+  ["loading", { status: "loading" }],
   ["processing", { status: "processing" }],
   ["done", done(readableResult)],
   ...[...STORED, ...NOT_STORED].map((reason): [string, AtsParse] => [
@@ -64,7 +64,7 @@ describe("ResultBar status", () => {
 
 describe("ResultBar before the result", () => {
   it.each([
-    ["uploading", { status: "uploading" } as AtsParse, /^Uploading your CV…?$/],
+    ["loading", { status: "loading" } as AtsParse, /^Preparing the parser…?$/],
     ["processing", { status: "processing" } as AtsParse, /^Reading your CV…?$/],
   ])("shows a spinner and says what it's doing while %s", (_name, parse, title) => {
     const { container } = render(<ResultBar parse={parse} onReset={() => {}} />);
@@ -80,7 +80,7 @@ describe("ResultBar before the result", () => {
   it.each([...STORED, ...NOT_STORED])("has a failure title for %s, without a spinner", (reason) => {
     const { container } = render(<ResultBar parse={{ status: "failed", reason }} onReset={() => {}} />);
     expect(status().textContent?.trim()).not.toBe("");
-    expect(status().textContent).not.toMatch(/uploading|reading your cv|found your details/i);
+    expect(status().textContent).not.toMatch(/preparing|reading your cv|found your details/i);
     expect(container.querySelector("[data-slot=spinner]")).toBeNull();
   });
 });
@@ -95,7 +95,7 @@ describe("ResultBar in every state", () => {
   });
 
   it.each([
-    ["uploading", { status: "uploading" } as AtsParse],
+    ["loading", { status: "loading" } as AtsParse],
     ["processing", { status: "processing" } as AtsParse],
     ["done", done(readableResult)],
     ...STORED.map((reason): [string, AtsParse] => [`failed (${reason})`, { status: "failed", reason }]),
@@ -111,9 +111,9 @@ describe("ResultBar in every state", () => {
 });
 
 describe("focus when a result arrives", () => {
-  it("doesn't move when the bar mounts while uploading or processing", () => {
+  it("doesn't move when the bar mounts while loading or processing", () => {
     const onFocusKept = vi.fn();
-    const { unmount } = render(<ResultBar parse={{ status: "uploading" }} onReset={() => {}} onFocusKept={onFocusKept} />);
+    const { unmount } = render(<ResultBar parse={{ status: "loading" }} onReset={() => {}} onFocusKept={onFocusKept} />);
     expect(document.activeElement).toBe(document.body);
     unmount();
     render(<ResultBar parse={{ status: "processing" }} onReset={() => {}} onFocusKept={onFocusKept} />);
