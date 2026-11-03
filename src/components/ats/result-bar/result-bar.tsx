@@ -1,7 +1,7 @@
 import { CircleCheckIcon, CircleXIcon, EyeOffIcon, TriangleAlertIcon, type LucideIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-import type { AtsFailureReason, AtsParse } from "@/parser/use-ats-parse";
+import type { AtsParse } from "@/parser/use-ats-parse";
 import type { ParseResult } from "@/parser/generated/parse-outcome";
 import { missingDetails } from "@/components/ats/parse-result/missing-details";
 import { PrivacyNote } from "@/components/ats/privacy-note/privacy-note";
@@ -13,9 +13,6 @@ import { cn } from "@/lib/utils";
 type Status = { icon?: LucideIcon; tone: string; title: string; note?: string };
 
 const WARNING_TONE = "text-amber-600 dark:text-amber-400";
-
-/** Failures where the file was turned away before it was stored, or where the code can't know it was deleted. */
-const NO_DELETION_CLAIM: AtsFailureReason[] = ["too-large", "not-pdf", "error", "timed-out"];
 
 const verdictOf = (result: ParseResult): Status => {
   if (result.visibility === "invisible") {
@@ -73,7 +70,6 @@ export const ResultBar = ({ parse, onReset, onFocusKept }: ResultBarProps) => {
     // When the result arrives only.
   }, [done]);
   const { icon: Icon, tone, title, note } = statusOf(parse);
-  const stored = parse.status !== "failed" || !NO_DELETION_CLAIM.includes(parse.reason);
   // While it works, an empty line holds the place of a pass's note, so the page below doesn't move when one lands.
   const working = parse.status === "loading" || parse.status === "processing";
 
@@ -96,7 +92,7 @@ export const ResultBar = ({ parse, onReset, onFocusKept }: ResultBarProps) => {
             {"\u00a0"}
           </p>
         )}
-        {stored && <PrivacyNote />}
+        <PrivacyNote />
       </div>
       <div className="shrink-0">
         <TryAnother onReset={onReset}>Check another CV</TryAnother>

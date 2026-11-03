@@ -1,6 +1,6 @@
 import type { ParseResult } from "@/parser/generated/parse-outcome";
 
-// What the parser made of `public/sample-cv.pdf` (an invented CV), as the api returned it on 2026-11-02, so the
+// What the parser made of `public/sample-cv.pdf` (an invented CV), as the parser returned it on 2026-11-02, so the
 // example on the upload page matches the sample it offers. Regenerate it when the sample or the parser changes.
 export const exampleResult: ParseResult = {
   visibility: "readable",

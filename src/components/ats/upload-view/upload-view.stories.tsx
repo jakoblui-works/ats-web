@@ -23,7 +23,7 @@ type Story = StoryObj<typeof UploadView>;
 export const Idle: Story = {
   play: async ({ args, canvas, canvasElement }) => {
     await expect(canvas.getByRole("button", { name: "Upload CV" })).toBeVisible();
-    await expect(canvas.getByText(/deleted right after/)).toBeVisible();
+    await expect(canvas.getByText(/never leaves your device/)).toBeVisible();
     await expect(canvas.getByText(/English or Danish/)).toBeVisible();
     await expect(canvas.getByText("Drop your CV here")).toBeVisible();
 

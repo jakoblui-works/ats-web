@@ -71,7 +71,7 @@ const MESSAGE_TOPICS: Record<AtsFailureReason, RegExp> = {
   error: /went wrong/i,
 };
 
-/** The reason, and nothing else: the deletion note and the way back are the bar's (one of each on the page). */
+/** The reason, and nothing else: the privacy note and the way back are the bar's (one of each on the page). */
 const failure = (reason: AtsFailureReason): Story => ({
   args: { parse: { status: "failed", reason } },
   play: async ({ canvas }) => {
@@ -82,7 +82,7 @@ const failure = (reason: AtsFailureReason): Story => ({
       if (other === reason) await expect(alert).toHaveTextContent(topic);
       else await expect(alert).not.toHaveTextContent(topic);
     }
-    await expect(canvas.queryByText(/deleted right after/)).toBeNull();
+    await expect(canvas.queryByText(/never leaves your device/)).toBeNull();
     await expect(canvas.queryByRole("button")).toBeNull();
   },
 });

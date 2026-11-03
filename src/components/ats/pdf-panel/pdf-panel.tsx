@@ -38,7 +38,7 @@ const PdfFrame = ({ src }: { src: string }) => {
   );
 };
 
-/** The visitor's own PDF, from their browser's memory: nothing is fetched back from the server. */
+/** The visitor's own PDF, from their browser's memory: it never leaves the device. */
 export const PdfPanel = ({ url, inline, unavailable = false }: PdfPanelProps) => {
   if (unavailable) {
     return (

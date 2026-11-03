@@ -18,7 +18,7 @@ export const Loading: Story = {
   args: { parse: { status: "loading" } },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("heading", { level: 2, name: /Preparing the parser/ })).toBeVisible();
-    await expect(canvas.getByText(/deleted right after/)).toBeVisible();
+    await expect(canvas.getByText(/never leaves your device/)).toBeVisible();
     await expect(canvas.getByRole("button", { name: "Check another CV" })).toBeVisible();
   },
 };
@@ -27,7 +27,7 @@ export const Processing: Story = {
   args: { parse: { status: "processing" } },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("heading", { level: 2, name: /Reading your CV/ })).toBeVisible();
-    await expect(canvas.getByText(/deleted right after/)).toBeVisible();
+    await expect(canvas.getByText(/never leaves your device/)).toBeVisible();
   },
 };
 
@@ -35,7 +35,7 @@ export const Readable: Story = {
   play: async ({ args, canvas }) => {
     await expect(canvas.getByRole("heading", { name: "A simple parser found your details" })).toBeVisible();
     await expect(canvas.getByText(/Compare the text with your PDF/)).toBeVisible();
-    await expect(canvas.getByText(/expires within an hour/)).toBeVisible();
+    await expect(canvas.getByText(/never leaves your device/)).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: "Check another CV" }));
     await expect(args.onReset).toHaveBeenCalled();
   },
@@ -49,12 +49,12 @@ export const SomethingMissing: Story = {
 export const Partial: Story = { args: { parse: { status: "done", result: partialResult } } };
 export const Invisible: Story = { args: { parse: { status: "done", result: invisibleResult } } };
 
-/** A failure the file was stored for says it was deleted; one that turned it away doesn't. */
+/** Every failure still carries the privacy note. */
 export const FailedStored: Story = {
   args: { parse: { status: "failed", reason: "encrypted" } },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("heading", { level: 2 })).toBeVisible();
-    await expect(canvas.getByText(/deleted right after/)).toBeVisible();
+    await expect(canvas.getByText(/never leaves your device/)).toBeVisible();
   },
 };
 
@@ -62,6 +62,6 @@ export const FailedTurnedAway: Story = {
   args: { parse: { status: "failed", reason: "too-large" } },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("heading", { level: 2 })).toBeVisible();
-    await expect(canvas.queryByText(/deleted right after/)).toBeNull();
+    await expect(canvas.getByText(/never leaves your device/)).toBeVisible();
   },
 };

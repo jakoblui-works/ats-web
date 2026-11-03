@@ -113,7 +113,7 @@ export const UploadView = ({ onFile, dragging = false, focusButton = false }: Up
           {/* The icon is inline, so it stays at the start of the text when the line wraps. */}
           <p className="text-sm text-balance">
             <LockIcon aria-hidden className="mr-1.5 inline size-4 align-[-0.2em] text-primary" />
-            Your file is deleted right after it is read, and the result expires within an hour.
+            Your CV never leaves your device.
           </p>
           <a
             href={SAMPLE_CV}

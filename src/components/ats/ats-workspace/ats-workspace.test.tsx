@@ -64,15 +64,13 @@ describe("AtsWorkspace in every state", () => {
     ["loading", { status: "loading" } as AtsParse],
     ["processing", { status: "processing" } as AtsParse],
     ["done", DONE],
-    ...STORED.map((reason): [string, AtsParse] => [`failed (${reason})`, { status: "failed", reason }]),
-  ])("says the file is deleted exactly once when %s", (_name, parse) => {
+    ...[...STORED, ...NOT_STORED].map((reason): [string, AtsParse] => [
+      `failed (${reason})`,
+      { status: "failed", reason },
+    ]),
+  ])("says the CV never leaves the device exactly once when %s", (_name, parse) => {
     render(workspace(parse));
-    expect(screen.getAllByText(/deleted right after it is parsed/)).toHaveLength(1);
-  });
-
-  it.each(NOT_STORED)("makes no deletion claim for %s", (reason) => {
-    render(workspace({ status: "failed", reason }));
-    expect(screen.queryByText(/deleted right after/)).toBeNull();
+    expect(screen.getAllByText(/never leaves your device/)).toHaveLength(1);
   });
 
   it.each([...STORED, ...NOT_STORED])("still gives the reason below the title for %s", (reason) => {

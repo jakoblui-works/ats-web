@@ -15,7 +15,7 @@ const without = (contact: Partial<ParseResult["contact"]>): ParseResult => ({
   contact: { ...readableResult.contact, ...contact },
 });
 
-/** Failures after the file was stored, and ones that turned it away (or can't know it was deleted). */
+/** Every failure reason, in two groups. */
 const STORED: AtsFailureReason[] = ["too-many-pages", "encrypted", "corrupt"];
 const NOT_STORED: AtsFailureReason[] = ["too-large", "not-pdf", "error", "timed-out"];
 
@@ -98,15 +98,13 @@ describe("ResultBar in every state", () => {
     ["loading", { status: "loading" } as AtsParse],
     ["processing", { status: "processing" } as AtsParse],
     ["done", done(readableResult)],
-    ...STORED.map((reason): [string, AtsParse] => [`failed (${reason})`, { status: "failed", reason }]),
-  ])("says the file is deleted when %s", (_name, parse) => {
+    ...[...STORED, ...NOT_STORED].map((reason): [string, AtsParse] => [
+      `failed (${reason})`,
+      { status: "failed", reason },
+    ]),
+  ])("says the CV never leaves the device when %s", (_name, parse) => {
     render(<ResultBar parse={parse} onReset={() => {}} />);
-    expect(screen.getAllByText(/deleted right after it is parsed/)).toHaveLength(1);
-  });
-
-  it.each(NOT_STORED)("makes no deletion claim for %s", (reason) => {
-    render(<ResultBar parse={{ status: "failed", reason }} onReset={() => {}} />);
-    expect(screen.queryByText(/deleted right after/)).toBeNull();
+    expect(screen.getAllByText(/never leaves your device/)).toHaveLength(1);
   });
 });
 
