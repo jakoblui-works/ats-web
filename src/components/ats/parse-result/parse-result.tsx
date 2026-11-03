@@ -12,7 +12,7 @@ import { TextTab } from "./text-tab";
 type Warning = Result["warnings"][number];
 
 // The page shows what was read and never vouches for it: only the visitor knows what their CV says.
-const CHECK_NOTE = "Check each field against your CV: a recruiter would see it as it is here.";
+const CHECK_NOTE = "Worth checking each field against your CV: a field can be filled in and still hold the wrong text.";
 
 const PARTIAL_NOTE = "Some of your CV came through as text, and some of it may be missing or in the wrong order.";
 

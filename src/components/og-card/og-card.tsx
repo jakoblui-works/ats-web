@@ -88,7 +88,7 @@ export const OgCard = () => {
           <span className="block text-primary">read your CV?</span>
         </h1>
         <p className="mt-9 font-heading text-[30px] leading-none font-medium tracking-[-0.02em] text-muted-foreground">
-          Read in your browser <span className="text-primary">→</span> checked by you
+          Read by a simple parser, in your browser
         </p>
       </div>
     </div>

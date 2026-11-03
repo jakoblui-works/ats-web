@@ -16,7 +16,7 @@ type Story = StoryObj<typeof OgCard>;
 export const Default: Story = {
   play: async ({ canvas, canvasElement }) => {
     await expect(canvas.getByRole("heading", { name: /read your CV\?/ })).toBeVisible();
-    await expect(canvas.getByText(/checked by you/)).toBeVisible();
+    await expect(canvas.getByText(/in your browser/)).toBeVisible();
 
     // The size og:image:width/height in index.html declare.
     const card = canvasElement.querySelector("[data-og-card]")!;

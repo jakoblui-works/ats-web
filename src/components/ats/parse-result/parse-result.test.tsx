@@ -51,18 +51,18 @@ describe("ParseResult shows a missing field as missing", () => {
   });
 });
 
-describe("ParseResult asks the visitor to check it", () => {
+describe("ParseResult suggests checking the fields", () => {
   it("on every result with fields, partial ones too", () => {
     for (const result of [readableResult, { ...readableResult, visibility: "partial" as const }]) {
       const { unmount } = render(<ParseResult result={result} />);
-      expect(screen.getByText(/check each field against your CV/i)).toBeInTheDocument();
+      expect(screen.getByText(/checking each field against your CV/i)).toBeInTheDocument();
       unmount();
     }
   });
 
   it("not when nothing was readable, so there is nothing to check", () => {
     render(<ParseResult result={invisibleResult} />);
-    expect(screen.queryByText(/check each field/i)).toBeNull();
+    expect(screen.queryByText(/checking each field/i)).toBeNull();
   });
 });
 
