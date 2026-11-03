@@ -32,4 +32,8 @@ export default defineConfig([
     },
   },
   ...storybook.configs["flat/recommended"],
+
+  // The parser's fetched assets (scripts/fetch-parser-assets.mjs).
+  globalIgnores(["public/assets/"]),
+
 ]);

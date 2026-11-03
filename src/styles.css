@@ -19,3 +19,54 @@
 }
 
 /* The app's own CSS goes below, a line away from the template's. */
+
+@keyframes ats-upload-out {
+  0% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes ats-upload-in {
+  0%,
+  25% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Upload view to result and back: the old view fades out, the new one fades in late. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(ats-upload),
+  ::view-transition-group(ats-result) {
+    animation-duration: 350ms;
+    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  ::view-transition-old(ats-upload),
+  ::view-transition-old(ats-result) {
+    animation-name: ats-upload-out;
+  }
+
+  ::view-transition-new(ats-upload),
+  ::view-transition-new(ats-result) {
+    animation-name: ats-upload-in;
+  }
+
+  ::view-transition-new(ats-result) {
+    animation-delay: 200ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-new(*),
+  ::view-transition-old(*) {
+    animation: none;
+  }
+}

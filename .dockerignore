@@ -6,3 +6,7 @@ storybook-static
 .tanstack
 .git
 *.local
+
+# Made by scripts/fetch-parser-assets.mjs, which the image's build runs itself.
+public/assets/pyodide-*
+src/parser/parser-assets.gen.ts*
