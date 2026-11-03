@@ -26,7 +26,7 @@ describe("ParseResult shows a missing field as missing", () => {
       contact: { name: empty, email: empty, phone: empty, location: empty, links: [] },
     };
     render(<ParseResult result={result} />);
-    for (const label of ["Email", "Phone", "Links"]) {
+    for (const label of ["Email", "Phone", "Location", "Links"]) {
       expect(fieldValue(label)).toHaveTextContent(MISSING);
     }
   });
@@ -35,6 +35,11 @@ describe("ParseResult shows a missing field as missing", () => {
     render(<ParseResult result={readableResult} />);
     expect(fieldValue("Email")).toHaveTextContent(readableResult.contact.email!);
     expect(fieldValue("Email")).not.toHaveTextContent(MISSING);
+  });
+
+  it("shows the location when one was found", () => {
+    render(<ParseResult result={{ ...readableResult, contact: { ...readableResult.contact, location: "Lakeside, Exampleshire" } }} />);
+    expect(fieldValue("Location")).toHaveTextContent("Lakeside, Exampleshire");
   });
 
   it("hides the character count when nothing is readable, and shows it otherwise", () => {
