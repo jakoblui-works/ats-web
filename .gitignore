@@ -7,3 +7,7 @@ routeTree.gen.ts
 *storybook.log
 storybook-static
 .tanstack
+
+# The parser's assets and the module naming their folder (scripts/fetch-parser-assets.mjs)
+public/assets/pyodide-*/
+src/parser/parser-assets.gen.ts

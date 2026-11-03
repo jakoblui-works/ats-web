@@ -1,0 +1,24 @@
+{
+  "pyodide": "314.0.7",
+  "wheels": [
+    {
+      "url": "https://files.pythonhosted.org/packages/20/8b/28c4eaec9d6b036a52cb44720408f26b1a143ca9bce76cc19e8f5de00ab4/pdfminer_six-20260107-py3-none-any.whl",
+      "sha256": "366585ba97e80dffa8f00cebe303d2f381884d8637af4ce422f1df3ef38111a9",
+      "strip": ["pdfminer/cmap/"]
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/fc/ad/d07d7862a62ffa6d79d68074d14823243dd235a77c45262acbf6adeb28bf/charset_normalizer-3.5.2-py3-none-any.whl",
+      "sha256": "b6b751274acb69d77b3323d6b7dbaa3c7fdfc1eb829b7eb61d262f32e1af9685"
+    }
+  ],
+  "parser": {
+    "wheel": {
+      "url": "https://github.com/jakoblui-works/ats-parser/releases/download/v0.1.0/ats_parser-0.1.0-py3-none-any.whl",
+      "sha256": null
+    },
+    "schema": {
+      "url": "https://github.com/jakoblui-works/ats-parser/releases/download/v0.1.0/parse_outcome.schema.json",
+      "sha256": null
+    }
+  }
+}
