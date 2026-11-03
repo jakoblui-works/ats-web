@@ -11,6 +11,9 @@ import { TextTab } from "./text-tab";
 
 type Warning = Result["warnings"][number];
 
+// The page shows what was read and never vouches for it: only the visitor knows what their CV says.
+const CHECK_NOTE = "Check each field against your CV: a recruiter would see it as it is here.";
+
 const PARTIAL_NOTE = "Some of your CV came through as text, and some of it may be missing or in the wrong order.";
 
 const WARNING_MESSAGES: Record<Warning, string> = {
@@ -64,7 +67,10 @@ export const ParseResult = ({ result }: { result: Result }) => {
         </section>
       )}
 
-      {/* Nothing readable came through, so there is nothing to show in the tabs. */}
+      {/* Nothing readable came through, so there is nothing to show in the tabs or check. */}
+      {result.visibility !== "invisible" && (
+        <p className="text-sm text-foreground/75 dark:text-muted-foreground">{CHECK_NOTE}</p>
+      )}
       {result.visibility !== "invisible" && (
         <Tabs defaultValue="contact">
           <TabsList className="w-full justify-start overflow-x-auto">

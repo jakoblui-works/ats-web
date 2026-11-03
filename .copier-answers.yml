@@ -6,8 +6,8 @@ csp: 'default-src ''self''; script-src ''self'' ''wasm-unsafe-eval''; style-src 
     ''unsafe-inline''; img-src ''self'' data: blob:; font-src ''self'' data:; frame-src
     blob:; object-src ''none''; base-uri ''none''; form-action ''self''; frame-ancestors
     ''none'''
-description: 'See what a deliberately simple parser picks out of your CV: if it reads
-    it, most ATS will too.'
+description: See what a basic ATS might show a recruiter from your CV. A simple parser
+    reads it in your browser; you check each field.
 host: ats.jakoblui.com
 palette: amber
 subdomain: ats
