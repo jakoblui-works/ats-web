@@ -11,7 +11,7 @@ describe("UploadView", () => {
     const area = container.querySelector<HTMLElement>("div.border-dashed")!;
     const heading = screen.getByRole("heading", { level: 1 });
     expect(area).not.toContainElement(heading);
-    expect(area).not.toContainElement(screen.getByText(/only you know what it should say/));
+    expect(area).not.toContainElement(screen.getByText(/might show a recruiter/));
     expect(area).not.toContainElement(screen.getByText(/never leaves your device/));
     expect(area).toContainElement(screen.getByRole("button", { name: "Upload CV" }));
     expect(screen.getAllByRole("button")).toHaveLength(1);

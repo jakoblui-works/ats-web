@@ -69,8 +69,7 @@ export const UploadView = ({ onFile, dragging = false, focusButton = false }: Up
       <div className="flex flex-col items-center gap-3 text-center">
         <h1 className="text-3xl font-semibold text-balance sm:text-4xl">Would a simple ATS read your CV?</h1>
         <p className="text-lg text-balance text-foreground/75 dark:text-muted-foreground">
-          See what a basic ATS might show a recruiter from your CV, read by a simple parser in your browser. Check each
-          field against your CV: only you know what it should say.
+          See what a basic ATS might show a recruiter from your CV, read by a simple parser in your browser.
         </p>
       </div>
       <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-12">
