@@ -1,6 +1,7 @@
 // Writes the prerendered pages (`src/prerender.tsx`, built to dist-ssr) into dist, each from
 // dist/index.html with the page in `#app`. Run by `pnpm build`, after both Vite builds.
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = path.join(import.meta.dirname, "..");
@@ -35,14 +36,35 @@ const pages = [
 ];
 
 // Marked with its URL: the app hydrates it there and replaces it anywhere else (`main.tsx`).
+const written = [];
 for (const { url, file, head } of pages) {
-  const html = await render(url);
-  await writeFile(
-    path.join(dist, file),
-    head(template).replace(
-      placeholder,
-      `<div id="app"><div data-prerendered="${url}">${html}</div></div>`,
-    ),
+  const page = head(template).replace(
+    placeholder,
+    `<div id="app"><div data-prerendered="${url}">${await render(url)}</div></div>`,
   );
+  await writeFile(path.join(dist, file), page);
+  written.push(page);
 }
 await rm(ssrDir, { recursive: true });
+
+// The Content-Security-Policy (the `csp` answer), with the hashes of every inline script in the
+// pages added to `script-src`: the theme script and the router's hydration scripts, whose contents
+// change between builds. nginx sends it (`nginx.conf`, the Dockerfile copies it there).
+const policy = "default-src \u0027self\u0027; script-src \u0027self\u0027 \u0027wasm-unsafe-eval\u0027; style-src \u0027self\u0027 \u0027unsafe-inline\u0027; img-src \u0027self\u0027 data: blob:; font-src \u0027self\u0027 data:; frame-src blob:; object-src \u0027none\u0027; base-uri \u0027none\u0027; form-action \u0027self\u0027; frame-ancestors \u0027none\u0027";
+const inlineScripts = written.flatMap((page) =>
+  [...page.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)]
+    .filter(([, attributes]) => !/\ssrc=/.test(attributes))
+    .map(([, , body]) => body),
+);
+const hashes = [
+  ...new Set(inlineScripts.map((body) => `'sha256-${createHash("sha256").update(body).digest("base64")}'`)),
+];
+const withHashes = policy.replace(/(^|;)(\s*script-src)(?=\s)/, (_, start, directive) =>
+  `${start}${directive} ${hashes.join(" ")}`,
+);
+const nginxDir = path.join(root, "dist-nginx");
+await mkdir(nginxDir, { recursive: true });
+await writeFile(
+  path.join(nginxDir, "csp.conf"),
+  `add_header Content-Security-Policy "${withHashes}" always;\n`,
+);

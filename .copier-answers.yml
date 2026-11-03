@@ -1,7 +1,11 @@
 # Changes here will be overwritten by Copier; never edit by hand.
-_commit: v0.2.2
+_commit: v0.3.0
 _src_path: gh:jakoblui-works/web-template
 app_name: ats-web
+csp: 'default-src ''self''; script-src ''self'' ''wasm-unsafe-eval''; style-src ''self''
+    ''unsafe-inline''; img-src ''self'' data: blob:; font-src ''self'' data:; frame-src
+    blob:; object-src ''none''; base-uri ''none''; form-action ''self''; frame-ancestors
+    ''none'''
 description: 'See what a deliberately simple parser picks out of your CV: if it reads
     it, most ATS will too.'
 host: ats.jakoblui.com
