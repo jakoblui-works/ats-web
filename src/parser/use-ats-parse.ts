@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { looksLikePdf } from "@/lib/pdf";
+import "@/parser/zod-config";
 import { parseOutcomeSchema, type ParseOutcome, type ParseResult } from "@/parser/generated/parse-outcome";
 import type { FromWorker, ParseRequest } from "@/parser/protocol";
 
