@@ -71,9 +71,12 @@ class FakeWorker extends EventTarget {
     this.terminated = true;
   }
 
-  /** A message from the worker. A terminated worker can't send any, as in a browser. */
-  emit(data: unknown) {
-    if (this.terminated) return;
+  /**
+   * A message from the worker. A terminated worker sends none, unless `queued`: a reply it posted just before it was
+   * terminated, already on its way to the page (the hook must still ignore it if it's stale).
+   */
+  emit(data: unknown, queued = false) {
+    if (this.terminated && !queued) return;
     if (isParse(data)) throw new Error("emit replies, not parse requests");
     if ((data as { type?: string }).type === "ready") this.ready = true;
     const event = new MessageEvent("message", { data });
@@ -158,6 +161,12 @@ const advance = async (ms: number) => {
 
 const send = async (worker: FakeWorker, data: unknown) => {
   act(() => worker.emit(data));
+  await flush();
+};
+
+/** A reply that was already on its way when its worker was terminated (or is still alive). */
+const sendLate = async (worker: FakeWorker, data: unknown) => {
+  act(() => worker.emit(data, true));
   await flush();
 };
 
@@ -363,7 +372,7 @@ describe("useAtsParse: only the latest file counts", () => {
 
     await send(newer.worker, outcomeMessage(newer.message, parsedOutcome(2)));
     expect(hook.result.current.parse).toMatchObject({ status: "done", result: { character_count: 2 } });
-    await send(older.worker, outcomeMessage(older.message, rejectedOutcome("encrypted")));
+    await sendLate(older.worker, outcomeMessage(older.message, rejectedOutcome("encrypted")));
     expect(hook.result.current.parse).toMatchObject({ status: "done", result: { character_count: 2 } });
   });
 
@@ -374,7 +383,7 @@ describe("useAtsParse: only the latest file counts", () => {
     await choose(hook, pdf(2));
     const newer = await readyAndSent();
 
-    await send(older.worker, outcomeMessage(older.message, parsedOutcome(1)));
+    await sendLate(older.worker, outcomeMessage(older.message, parsedOutcome(1)));
     expect(hook.result.current.parse).toEqual({ status: "processing" });
     await send(newer.worker, outcomeMessage(newer.message, parsedOutcome(2)));
     expect(hook.result.current.parse).toMatchObject({ status: "done", result: { character_count: 2 } });
@@ -387,7 +396,7 @@ describe("useAtsParse: only the latest file counts", () => {
     act(() => hook.result.current.reset());
     await flush();
     expect(hook.result.current.parse).toBeNull();
-    await send(worker, outcomeMessage(message, parsedOutcome(1)));
+    await sendLate(worker, outcomeMessage(message, parsedOutcome(1)));
     expect(hook.result.current.parse).toBeNull();
   });
 
@@ -560,4 +569,87 @@ describe("useAtsParse: what goes to the worker", () => {
     workers.forEach((w, i) => w.posted.forEach((p, j) => visit(p.message, `worker ${i}, message ${j}`)));
     expect(leaks, "the file's name went to the worker").toEqual([]);
   });
+});
+
+// Bugs found in review (each gets a test).
+describe("useAtsParse: a dropped parse replaces its worker", () => {
+  it("terminates the worker when a new file drops an unanswered parse, and sends the new file to a new worker", async () => {
+    const hook = mount();
+    await choose(hook, pdf(1));
+    const older = await readyAndSent();
+    expect(older.worker).toBe(workers[0]);
+
+    await choose(hook, pdf(2));
+    expect(workers[0].terminated).toBe(true);
+    expect(workers).toHaveLength(2);
+    const newer = await readyAndSent();
+    expect(newer.worker).toBe(workers[1]);
+    expect(markerOf(newer.message)).toBe(2);
+    await send(newer.worker, outcomeMessage(newer.message, parsedOutcome(2)));
+    expect(hook.result.current.parse).toMatchObject({ status: "done", result: { character_count: 2 } });
+  });
+
+  it("terminates the worker when a reset drops an unanswered parse, and sends the next file to a new worker", async () => {
+    const hook = mount();
+    await choose(hook, pdf(1));
+    await readyAndSent();
+    act(() => hook.result.current.reset());
+    await flush();
+    expect(hook.result.current.parse).toBeNull();
+    expect(workers[0].terminated).toBe(true);
+    expect(workers).toHaveLength(2);
+
+    await choose(hook, pdf(2));
+    const { worker, message } = await readyAndSent();
+    expect(worker).toBe(workers[1]);
+    expect(markerOf(message)).toBe(2);
+  });
+
+  it("keeps the worker when the parse was already answered", async () => {
+    const hook = mount();
+    await choose(hook, pdf(1));
+    const first = await readyAndSent();
+    await send(first.worker, outcomeMessage(first.message, parsedOutcome(1)));
+
+    await choose(hook, pdf(2));
+    expect(workers[0].terminated).toBe(false);
+    expect(workers).toHaveLength(1);
+    expect(hook.result.current.parse).toEqual({ status: "processing" });
+    expect(lastSent().worker).toBe(workers[0]);
+    expect(markerOf(lastSent().message)).toBe(2);
+  });
+});
+
+describe("useAtsParse: a corrupt rejection replaces the worker", () => {
+  it("ends failed/corrupt, terminates the worker, and sends the next file to a new one", async () => {
+    const hook = mount();
+    await choose(hook, pdf(1));
+    const { worker, message } = await readyAndSent();
+    await send(worker, outcomeMessage(message, rejectedOutcome("corrupt")));
+    expect(hook.result.current.parse).toEqual({ status: "failed", reason: "corrupt" });
+    expect(workers[0].terminated).toBe(true);
+    expect(workers).toHaveLength(2);
+
+    await choose(hook, pdf(2));
+    const next = await readyAndSent();
+    expect(next.worker).toBe(workers[1]);
+    expect(markerOf(next.message)).toBe(2);
+  });
+
+  it.each(REJECTIONS.filter(([reason]) => reason !== "corrupt"))(
+    "keeps the worker after rejected %s",
+    async (reason, state) => {
+      const hook = mount();
+      await choose(hook, pdf(1));
+      const { worker, message } = await readyAndSent();
+      await send(worker, outcomeMessage(message, rejectedOutcome(reason)));
+      expect(hook.result.current.parse).toEqual({ status: "failed", reason: state });
+      expect(workers[0].terminated).toBe(false);
+      expect(workers).toHaveLength(1);
+
+      await choose(hook, pdf(2));
+      expect(lastSent().worker).toBe(workers[0]);
+      expect(markerOf(lastSent().message)).toBe(2);
+    },
+  );
 });

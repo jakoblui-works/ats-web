@@ -16,14 +16,14 @@ const without = (contact: Partial<ParseResult["contact"]>): ParseResult => ({
 });
 
 /** Every failure reason, in two groups. */
-const STORED: AtsFailureReason[] = ["too-many-pages", "encrypted", "corrupt"];
-const NOT_STORED: AtsFailureReason[] = ["too-large", "not-pdf", "error", "timed-out"];
+const REJECTED_BY_PARSER: AtsFailureReason[] = ["too-many-pages", "encrypted", "corrupt"];
+const OTHER_FAILURES: AtsFailureReason[] = ["too-large", "not-pdf", "error", "timed-out"];
 
 const EVERY_STATE: [string, AtsParse][] = [
   ["loading", { status: "loading" }],
   ["processing", { status: "processing" }],
   ["done", done(readableResult)],
-  ...[...STORED, ...NOT_STORED].map((reason): [string, AtsParse] => [
+  ...[...REJECTED_BY_PARSER, ...OTHER_FAILURES].map((reason): [string, AtsParse] => [
     `failed (${reason})`,
     { status: "failed", reason },
   ]),
@@ -77,7 +77,7 @@ describe("ResultBar before the result", () => {
     expect(container.querySelector("[data-slot=spinner]")).toBeNull();
   });
 
-  it.each([...STORED, ...NOT_STORED])("has a failure title for %s, without a spinner", (reason) => {
+  it.each([...REJECTED_BY_PARSER, ...OTHER_FAILURES])("has a failure title for %s, without a spinner", (reason) => {
     const { container } = render(<ResultBar parse={{ status: "failed", reason }} onReset={() => {}} />);
     expect(status().textContent?.trim()).not.toBe("");
     expect(status().textContent).not.toMatch(/preparing|reading your cv|found your details/i);
@@ -98,7 +98,7 @@ describe("ResultBar in every state", () => {
     ["loading", { status: "loading" } as AtsParse],
     ["processing", { status: "processing" } as AtsParse],
     ["done", done(readableResult)],
-    ...[...STORED, ...NOT_STORED].map((reason): [string, AtsParse] => [
+    ...[...REJECTED_BY_PARSER, ...OTHER_FAILURES].map((reason): [string, AtsParse] => [
       `failed (${reason})`,
       { status: "failed", reason },
     ]),

@@ -39,15 +39,18 @@ const REJECTION_REASONS: Record<Extract<ParseOutcome, { outcome: "rejected" }>["
   timed_out: "timed-out",
 };
 
+/** The parsed JSON, or `undefined` (which no schema accepts) if it isn't JSON. */
+const safeJson = (json: string): unknown => {
+  try {
+    return JSON.parse(json) as unknown;
+  } catch {
+    return undefined;
+  }
+};
+
 /** What the page shows for the worker's reply: anything that isn't a valid outcome is an error. */
 const toParse = (json: string): AtsParse => {
-  let value: unknown;
-  try {
-    value = JSON.parse(json);
-  } catch {
-    return { status: "failed", reason: "error" };
-  }
-  const outcome = parseOutcomeSchema.safeParse(value);
+  const outcome = parseOutcomeSchema.safeParse(safeJson(json));
   if (!outcome.success) return { status: "failed", reason: "error" };
   return outcome.data.outcome === "parsed"
     ? { status: "done", result: outcome.data.result }
@@ -107,6 +110,16 @@ export const useAtsParse = (
   const finish = (next: AtsParse) => {
     clearRequest();
     setParse(next);
+  };
+
+  /**
+   * Drops the current file's parse for a new `start` or a `reset`. One already sent and not answered may be a PDF
+   * that hangs the parser: its worker is replaced, so it can't keep a core busy or hold up the next file.
+   */
+  const dropRequest = () => {
+    const sentTo = request.current?.sentTo;
+    clearRequest();
+    if (sentTo && slot.current?.worker === sentTo) replaceWorker();
   };
 
   const dropWorker = () => {
@@ -169,9 +182,13 @@ export const useAtsParse = (
         case "load-failed":
           failLoading(worker, "error");
           return;
-        case "outcome":
-          if (request.current?.id === data.id) finish(toParse(data.json));
+        case "outcome": {
+          const parsed = toParse(data.json);
+          if (request.current?.id === data.id) finish(parsed);
+          // The parser reports running out of memory or recursion as `corrupt`, and wasm memory never shrinks.
+          if (parsed.status === "failed" && parsed.reason === "corrupt") replaceWorker();
           return;
+        }
         case "parse-failed":
           // After a Python exception the interpreter's state can't be trusted, whichever file raised it.
           if (request.current?.id === data.id) finish({ status: "failed", reason: "error" });
@@ -237,7 +254,7 @@ export const useAtsParse = (
 
   const start = (file: File) => {
     const mine = ++generation.current;
-    clearRequest();
+    dropRequest();
     // None after a failed load (or none could be created): this file gets a new one.
     if (!slot.current) startWorker();
     setParse({ status: slot.current?.ready ? "processing" : "loading" });
@@ -267,7 +284,7 @@ export const useAtsParse = (
 
   const reset = () => {
     generation.current++;
-    clearRequest();
+    dropRequest();
     setParse(null);
   };
 

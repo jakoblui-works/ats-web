@@ -50,7 +50,7 @@ export const Partial: Story = { args: { parse: { status: "done", result: partial
 export const Invisible: Story = { args: { parse: { status: "done", result: invisibleResult } } };
 
 /** Every failure still carries the privacy note. */
-export const FailedStored: Story = {
+export const FailedRejected: Story = {
   args: { parse: { status: "failed", reason: "encrypted" } },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("heading", { level: 2 })).toBeVisible();

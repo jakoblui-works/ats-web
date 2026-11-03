@@ -11,8 +11,8 @@ const workspace = (parse: AtsParse, onReset: () => void = () => {}) => (
 );
 
 const DONE: AtsParse = { status: "done", result: readableResult };
-const STORED: AtsFailureReason[] = ["too-many-pages", "encrypted", "corrupt"];
-const NOT_STORED: AtsFailureReason[] = ["too-large", "not-pdf", "error", "timed-out"];
+const REJECTED_BY_PARSER: AtsFailureReason[] = ["too-many-pages", "encrypted", "corrupt"];
+const OTHER_FAILURES: AtsFailureReason[] = ["too-large", "not-pdf", "error", "timed-out"];
 
 afterEach(() => {
   (document.activeElement as HTMLElement | null)?.blur();
@@ -48,7 +48,7 @@ describe("AtsWorkspace in every state", () => {
     ["loading", { status: "loading" } as AtsParse],
     ["processing", { status: "processing" } as AtsParse],
     ["done", DONE],
-    ...[...STORED, ...NOT_STORED].map((reason): [string, AtsParse] => [`failed (${reason})`, { status: "failed", reason }]),
+    ...[...REJECTED_BY_PARSER, ...OTHER_FAILURES].map((reason): [string, AtsParse] => [`failed (${reason})`, { status: "failed", reason }]),
   ])("has one status heading and one way back when %s", (_name, parse) => {
     const onReset = vi.fn();
     render(workspace(parse, onReset));
@@ -64,7 +64,7 @@ describe("AtsWorkspace in every state", () => {
     ["loading", { status: "loading" } as AtsParse],
     ["processing", { status: "processing" } as AtsParse],
     ["done", DONE],
-    ...[...STORED, ...NOT_STORED].map((reason): [string, AtsParse] => [
+    ...[...REJECTED_BY_PARSER, ...OTHER_FAILURES].map((reason): [string, AtsParse] => [
       `failed (${reason})`,
       { status: "failed", reason },
     ]),
@@ -73,7 +73,7 @@ describe("AtsWorkspace in every state", () => {
     expect(screen.getAllByText(/never leaves your device/)).toHaveLength(1);
   });
 
-  it.each([...STORED, ...NOT_STORED])("still gives the reason below the title for %s", (reason) => {
+  it.each([...REJECTED_BY_PARSER, ...OTHER_FAILURES])("still gives the reason below the title for %s", (reason) => {
     render(workspace({ status: "failed", reason }));
     const alert = screen.getByRole("alert");
     expect(alert.textContent?.trim()).not.toBe("");
