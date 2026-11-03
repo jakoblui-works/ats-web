@@ -11,6 +11,7 @@ pnpm test              # Vitest: unit tests (jsdom) + Storybook stories in a Pla
 pnpm build             # fetches the parser assets, vite build, prerender, tsc --noEmit
 pnpm preview           # serves dist/ (prerendered, but without nginx's 404 handling)
 pnpm storybook         # :6006
+pnpm og               # with Storybook running: screenshot the OgCard story to public/og.png (the og:image)
 pnpm fetch:parser      # fetch the parser assets into public/assets/pyodide-<hash>/ (also run by prebuild/predev/prestart)
 pnpm generate:schema   # regenerate src/parser/generated/ (zod) from the fetched parser schema
 copier update --trust  # pull template changes; commit first

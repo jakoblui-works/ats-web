@@ -12,6 +12,7 @@
     "start": "vite",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "og": "node scripts/render-og.mjs",
     "fetch:parser": "node scripts/fetch-parser-assets.mjs",
     "generate:schema": "node scripts/generate-parse-outcome.mjs",
     "prebuild": "node scripts/fetch-parser-assets.mjs",
