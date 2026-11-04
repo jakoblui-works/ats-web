@@ -170,8 +170,8 @@ importers:
         specifier: ^1.8.0
         version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@jakoblui-works/shared-ui':
-        specifier: ^0.3.0
-        version: 0.3.2(@base-ui/react@1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.3)
+        specifier: ^0.4.0
+        version: 0.4.0(@base-ui/react@1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.3)
       '@tailwindcss/vite':
         specifier: ^4.2.2
         version: 4.3.3(vite@8.3.5(esbuild@0.28.2)(jiti@2.7.0))
@@ -805,8 +805,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@jakoblui-works/shared-ui@0.3.2':
-    resolution: {integrity: sha512-gMdqKvsJMrxPih/xT6BK1toq2euDjYcDVgVb8X0n5+bAnIlxGpLJS+2Jfcb93sgGyV7so3mzAaf7wg/JDfrWQA==, tarball: https://npm.pkg.github.com/download/@jakoblui-works/shared-ui/0.3.2/d06352fb1844188cb9da265a1d4c505d71ef7928}
+  '@jakoblui-works/shared-ui@0.4.0':
+    resolution: {integrity: sha512-TfmCwFbRyJVXljsWPRFwgZsf+H8KggRSqB/y5zawX/PZrELsUUWtiQK+pSIuFg5P6ljTqB/KeMGl3jBeXsQEXg==, tarball: https://npm.pkg.github.com/download/@jakoblui-works/shared-ui/0.4.0/65ea381827dc7c495a496bd6228686f53e538f5f}
     peerDependencies:
       '@base-ui/react': ^1.8.0
       '@types/react': ^19.0.0
@@ -4536,7 +4536,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@jakoblui-works/shared-ui@0.3.2(@base-ui/react@1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.3)':
+  '@jakoblui-works/shared-ui@0.4.0(@base-ui/react@1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.3)':
     dependencies:
       '@base-ui/react': 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@fontsource-variable/inter': 5.3.0
