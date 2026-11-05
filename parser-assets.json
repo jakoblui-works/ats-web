@@ -13,11 +13,11 @@
   ],
   "parser": {
     "wheel": {
-      "url": "https://github.com/jakoblui-works/ats-parser/releases/download/v0.1.0/ats_parser-0.1.0-py3-none-any.whl",
-      "sha256": "3f2003200d2ccf94a55d4c2e5216142871d829990bf6435c8fff9c6d8a5792e6"
+      "url": "https://github.com/jakoblui-works/ats-parser/releases/download/v0.2.0/ats_parser-0.2.0-py3-none-any.whl",
+      "sha256": "23af36c2e29bfa3c645219478036e86f32e4647496b03dd5c3586582fd7f5f79"
     },
     "schema": {
-      "url": "https://github.com/jakoblui-works/ats-parser/releases/download/v0.1.0/parse_outcome.schema.json",
+      "url": "https://github.com/jakoblui-works/ats-parser/releases/download/v0.2.0/parse_outcome.schema.json",
       "sha256": "81acb11333598b2ed3517d84d05e37877ed7b126320acd3aa20c54d2e75ab8b9"
     }
   }
