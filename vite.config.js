@@ -4,6 +4,7 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig } from "vite";
+import { icons } from "./scripts/icons-plugin.mjs";
 
 // https://vitejs.dev/config/
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
@@ -18,6 +19,7 @@ export default defineConfig({
       autoCodeSplitting: true,
     }),
     react(),
+    icons(),
   ],
   resolve: {
     alias: {
