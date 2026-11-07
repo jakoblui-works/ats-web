@@ -3,6 +3,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { speculationRulesText } from "@jakoblui-works/shared-ui";
 
 const root = path.join(import.meta.dirname, "..");
 const dist = path.join(root, "dist");
@@ -49,7 +50,10 @@ await rm(ssrDir, { recursive: true });
 
 // The Content-Security-Policy (the `csp` answer), with the hashes of every inline script in the
 // pages added to `script-src`: the theme script and the router's hydration scripts, whose contents
-// change between builds. nginx sends it (`nginx.conf`, the Dockerfile copies it there).
+// change between builds. Also the hash of the speculation rules shared-ui's `SiteHeader` inserts
+// from JavaScript: Chromium ignores `'inline-speculation-rules'` when `script-src` has hashes, and
+// the text comes from the installed shared-ui, so it matches what the header inserts. nginx sends
+// it (`nginx.conf`, the Dockerfile copies it there).
 const policy = "default-src \u0027self\u0027; script-src \u0027self\u0027 \u0027wasm-unsafe-eval\u0027; style-src \u0027self\u0027 \u0027unsafe-inline\u0027; img-src \u0027self\u0027 data: blob:; font-src \u0027self\u0027 data:; frame-src blob:; object-src \u0027none\u0027; base-uri \u0027none\u0027; form-action \u0027self\u0027; frame-ancestors \u0027none\u0027";
 const inlineScripts = written.flatMap((page) =>
   [...page.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)]
@@ -57,7 +61,11 @@ const inlineScripts = written.flatMap((page) =>
     .map(([, , body]) => body),
 );
 const hashes = [
-  ...new Set(inlineScripts.map((body) => `'sha256-${createHash("sha256").update(body).digest("base64")}'`)),
+  ...new Set(
+    [...inlineScripts, speculationRulesText("ats")].map(
+      (body) => `'sha256-${createHash("sha256").update(body).digest("base64")}'`,
+    ),
+  ),
 ];
 const withHashes = policy.replace(/(^|;)(\s*script-src)(?=\s)/, (_, start, directive) =>
   `${start}${directive} ${hashes.join(" ")}`,
