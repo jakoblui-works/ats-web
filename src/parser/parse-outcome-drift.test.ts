@@ -1,4 +1,4 @@
-// Drift check (Group C2): the committed zod in src/parser/generated/parse-outcome.ts must be exactly what
+// Drift check: the committed zod in src/parser/generated/parse-outcome.ts must be exactly what
 // `pnpm generate:schema` makes from the fetched schema. `generate:schema` writes in place, so it runs in a copy of the
 // repo (node_modules linked), and the copy's output is compared with the committed file.
 import { afterAll, expect, it } from "vitest";

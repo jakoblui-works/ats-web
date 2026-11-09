@@ -4,6 +4,9 @@
 //
 // Nothing here may let text from Python or the PDF out: no message carries an error's text, Python's stdout and
 // stderr go nowhere, and the worker's console is silenced (Pyodide logs some failures itself).
+//
+// Pyodide compiles WebAssembly, which is why the site's CSP (the `csp` answer in .copier-answers.yml) has
+// `'wasm-unsafe-eval'` in `script-src`.
 import type { PyodideAPI } from "pyodide";
 
 import { parserAssets } from "./parser-assets";

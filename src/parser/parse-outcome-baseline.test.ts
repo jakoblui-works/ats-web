@@ -1,4 +1,4 @@
-// Contract check (Group C2): the generated zod accepts every outcome the native parser produced for the invented
+// Contract check: the generated zod accepts every outcome the native parser produced for the invented
 // samples (platform-docs/ats/browser/spike/baseline/*.json, beside this repo), so the schema the page validates with
 // and the parser's real output agree. On failure only the file and the path of each failing field are shown, never
 // the outcome's content.

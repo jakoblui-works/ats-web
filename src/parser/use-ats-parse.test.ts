@@ -1,6 +1,5 @@
-// Checks for the hook (Group C3), written from the interface before the hook: platform-docs/ats/browser/interface-c.md.
 // A fake Worker stands in for the parser's, so these run in jsdom with fake timers; the real worker is checked
-// through the built page (platform-docs/ats/browser/checks/c/c_page.mjs). Timings come from the hook's constants.
+// through the built page. Timings come from the hook's constants.
 import { fc } from "@fast-check/vitest";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
