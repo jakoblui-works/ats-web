@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier; never edit by hand.
-_commit: v0.5.0
+_commit: v0.5.1
 _src_path: gh:jakoblui-works/web-template
 app_name: ats-web
 csp: 'default-src ''self''; script-src ''self'' ''wasm-unsafe-eval''; style-src ''self''
