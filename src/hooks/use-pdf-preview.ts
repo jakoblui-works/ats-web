@@ -9,6 +9,7 @@ type PdfPreview = {
   unavailable: boolean;
 };
 
+// The preview is a blob: URL shown in an iframe, which is why the site's CSP has `frame-src blob:`.
 const NONE: PdfPreview = { url: null, unavailable: false };
 
 /**

@@ -1,6 +1,6 @@
 # ats-web
 
-Upload a CV as a PDF and see what a simple parser would extract from it. The parsing runs in the visitor's browser (a Python parser in a Web Worker, through Pyodide), so the CV never leaves the device. Served at ats.jakoblui.com. Made from `web-template` (Copier); `.copier-answers.yml` records the version.
+Upload a CV as a PDF and see what a simple parser would extract from it. The parser runs in the visitor's browser (Python in a Web Worker, through Pyodide), so the CV never leaves the device. Served at ats.jakoblui.com. Made from `web-template` (Copier); `.copier-answers.yml` records the version.
 
 ## Commands
 ```sh
@@ -11,40 +11,40 @@ pnpm test              # Vitest: unit tests (jsdom) + Storybook stories in a Pla
 pnpm build             # fetches the parser assets, vite build, prerender, tsc --noEmit
 pnpm preview           # serves dist/ (prerendered, but without nginx's 404 handling)
 pnpm storybook         # :6006
-pnpm og               # with Storybook running: screenshot the OgCard story to public/og.png (the og:image)
-pnpm fetch:parser      # fetch the parser assets into public/assets/pyodide-<hash>/ (also run by prebuild/predev/prestart)
-pnpm generate:schema   # regenerate src/parser/generated/ (zod) from the fetched parser schema
+pnpm og                # with Storybook running: screenshot the OgCard story to public/og.png
+pnpm fetch:parser      # fetch the parser assets into public/assets/pyodide-<hash>/ (prebuild/predev/prestart run it)
+pnpm generate:schema   # regenerate src/parser/generated/ from the fetched parser schema
 copier update --trust  # pull template changes; commit first
 ```
 
-## Stack
-React 19, Vite, TanStack Router (file routes in `src/routes`; `routeTree.gen.ts` is generated), Tailwind 4, shadcn on Base UI (`src/components/ui`), zod, Storybook 10, Vitest. The parser is Python run by Pyodide in a Web Worker; no api, no server-side code. Served by nginx (`nginx.conf`; the Storybook image has its own, `nginx.storybook.conf`).
-
 ## Layout
-- `src/routes/`: the pages. `__root.tsx` holds the 404 route; each page renders `AppHeader` itself.
-- `src/components/`: one folder per component with its stories and tests, files named after it (no `index.tsx`, no barrels), grouped by feature once there are several (`components/<feature>/<name>/`). The stories' titles follow the folders (`<Feature>/<Name>`). `ui/` stays flat, since the shadcn CLI expects it.
+- `src/routes/`: the pages, as file routes (`routeTree.gen.ts` is generated). `__root.tsx` holds the 404 route; each page renders `AppHeader` itself.
+- `src/components/`: one folder per component with its stories and tests, files named after it (no `index.tsx`, no barrels), grouped by feature once there are several (`components/<feature>/<name>/`). The stories' titles follow the folders (`<Feature>/<Name>`). `ui/` (shadcn) stays flat, since the shadcn CLI expects it.
 - `src/components/app-header/app-header.tsx`: shared-ui's `SiteHeader` as this site shows it.
 - `src/components/not-found-page/not-found-page.tsx`: the 404 page, with shared-ui's default `NotFound`. Draw the site's own here to replace it.
-- `src/parser/`: the in-browser parser. `parser.worker.ts` is the Web Worker that loads Pyodide and the parser's wheel and runs it; `use-ats-parse.ts` (`useAtsParse`) drives it from React and gives the page its `loading` / `processing` / `done` / `failed` states. `generated/` holds the zod for the parser's output (never edit by hand; a test keeps it equal to a regeneration).
-- `parser-assets.json`: the pin file: Pyodide's version, the wheels (URL + sha256; pdfminer.six is stripped of its CJK CMap tables), and the parser's wheel and JSON schema (ats-parser release URLs). `parser-stub/` is a stand-in for `cryptography`, which Pyodide would otherwise have to load for pdfminer.
-- `scripts/fetch-parser-assets.mjs`: puts Pyodide (from the `pyodide` npm package), the wheels, the stand-in and the parser's wheel and schema into `public/assets/pyodide-<hash>/` (git-ignored) and writes `src/parser/parser-assets.gen.ts`. The site serves all of it itself, so no CDN or PyPI is hit at runtime. Downloads are checked against their sha256 and cached in `node_modules/.cache/parser-assets/`.
+- `src/parser/`: the in-browser parser: `parser.worker.ts` (the worker), `use-ats-parse.ts` (the React hook), `generated/` (zod for the parser's output).
+- `parser-assets.json`: the pins for Pyodide, the wheels and the parser release. `parser-stub/`: stand-in for `cryptography`. `scripts/fetch-parser-assets.mjs`: builds `public/assets/pyodide-<hash>/` (git-ignored).
 - `src/prerender.tsx` + `scripts/prerender.mjs`: prerendering. `src/router.tsx`: the router, shared by it and `main.tsx`.
+- `Dockerfile` + `nginx.conf`: the site image. `Dockerfile.storybook` + `nginx.storybook.conf`: the Storybook image, which storybook-host composes. Deploys build both.
 
 ## Prerendering and 404s
-`pnpm build` renders `/` and the not-found page in Node and writes them into `dist/index.html` and `dist/404.html`, so crawlers get the text without running JavaScript. The browser hydrates a page on a URL that renders the same as the one it was rendered for, and replaces it anywhere else (`main.tsx`). nginx serves only real files and answers anything else with `404.html` and a 404 status.
-- **Rendering must work in Node, and match the browser's first render.** Don't read `window` or `document` while rendering (effects are fine). A render error fails the build on purpose.
-- **Heads are static,** in `index.html`, because previews and crawlers don't run JavaScript. `404.html`'s head is rewritten in `scripts/prerender.mjs`.
+`pnpm build` renders `/` and the not-found page into `dist/index.html` and `dist/404.html`.
+- **Rendering must work in Node and match the browser's first render.** Don't read `window` or `document` while rendering (effects are fine). A render error fails the build on purpose.
+- **nginx serves only real files** (`try_files $uri $uri/ =404`): a route without a prerendered file in `scripts/prerender.mjs`'s `pages` is served `404.html` with a 404 status, though it still renders client-side.
+- **Heads are static,** in `index.html`. `404.html`'s head is rewritten in `scripts/prerender.mjs`.
+- **The site-transition head script** in `index.html` takes its names from shared-ui; `src/site-transition-head-script.test.ts` checks them.
 
-## The parser's assets
-- Run by `prebuild`, `predev` and `prestart`, or by hand with `pnpm fetch:parser`.
-- **`ATS_PARSER_DIST=<dir>`** uses a local parser build (its wheel and schema) instead of the pinned release (ats-parser `v0.2.0`).
-- **Bumping the parser:** make a new ats-parser release, update the URLs and sha256 in `parser-assets.json`, run `pnpm fetch:parser`, then `pnpm generate:schema`, and fix what `tsc` flags.
-- **Don't run two fetches at once** (this only happens in dev: run it again or restart `pnpm dev`).
+## The parser
+- **Self-served:** the parser's assets come from the site, never a CDN or PyPI at runtime.
+- **`ATS_PARSER_DIST=<dir>`** makes `pnpm fetch:parser` use a local parser build instead of the pinned release.
+- **Bumping the parser:** new ats-parser release, then its URLs and sha256 in `parser-assets.json`, `pnpm fetch:parser`, `pnpm generate:schema`, and fix what `tsc` flags.
+- **Never edit `src/parser/generated/` by hand;** a test keeps it equal to a regeneration.
+- **Don't run two fetches at once** (dev only: run it again or restart `pnpm dev`).
+- **zod runs `jitless`,** from `src/parser/zod-config.ts`, imported before any schema.
 
 ## Gotchas
-- **Installing needs a GitHub Packages token** for `@jakoblui-works/shared-ui`, even though it's public. CI uses `GITHUB_TOKEN` (shared-ui's package settings must give this repo read access, "Manage Actions access"); the Docker builds take it as `--secret id=npm_token,env=NODE_AUTH_TOKEN`.
-- **The header, theme tokens and fonts come from shared-ui;** `styles.css` holds only this site's palette and CSS. A new site needs its entry in shared-ui's `sites.ts` first (`AppHeader`'s `current` is typed by it).
-- **Template files:** keep this repo's own additions at least one line away from template lines, or every template change to those lines conflicts on `copier update`. `README.md`, `CLAUDE.md`, the home page, `app-header.tsx` and `not-found-page.tsx` are this repo's own after the first render; updates never touch them.
-- **Content-Security-Policy:** the policy is web-template's `csp` answer (`.copier-answers.yml`; change it with `copier update --trust --data csp="…"`), so the browser enforces that nothing reaches a third party. The build adds the inline scripts' hashes to `script-src` (`scripts/prerender.mjs` → `dist-nginx/csp.conf`), and nginx sends it on every page. Pyodide needs `'wasm-unsafe-eval'`, the PDF preview `frame-src blob:`, Vite's inlined fonts `font-src data:`. zod runs `jitless` (`src/parser/zod-config.ts`, imported before any schema), or its eval probe shows as a violation. `pnpm dev` and `pnpm preview` send no policy: check it in the Docker image.
-- **Deploys build two images** (`ats-web` and `ats-web-storybook`); storybook-host composes the Storybook.
+- **Installing needs a GitHub Packages token** for `@jakoblui-works/shared-ui`, even though it's public. CI uses `GITHUB_TOKEN`: shared-ui's package settings must give this repo read access ("Manage Actions access"). The Docker builds take it as `--secret id=npm_token,env=NODE_AUTH_TOKEN`.
+- **The header, theme tokens and fonts come from shared-ui;** `styles.css` holds only this site's palette and CSS. A new site needs its entry in shared-ui's `sites.ts` first (`AppHeader`'s `current` is typed by it), with the same palette as `styles.css`.
+- **The CSP** is web-template's `csp` answer; change it with `copier update --trust --data csp="…"`. The browser enforces that nothing reaches a third party, so don't widen it for a CDN or analytics (Vite inlines fonts as `data:`, hence `font-src data:`). `pnpm dev` and `pnpm preview` send no policy: check it in the Docker image.
+- **Template files:** keep this repo's own additions at least one line away from template lines, or every template change to those lines conflicts on `copier update`. `README.md`, `CLAUDE.md`, `src/routes/index.tsx`, `src/components/app-header/app-header.tsx`, `src/components/not-found-page/not-found-page.tsx` and `public/sitemap.xml` are this repo's own after the first render; updates never touch them.
 - **Repo-root `robots.txt`** is Storybook's (disallow all). The site's is `public/robots.txt`.
