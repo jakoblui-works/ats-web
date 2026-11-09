@@ -1,4 +1,4 @@
-// Group C3: the hook creates its worker when the home page mounts, never while the build prerenders it. Node has no
+// The hook creates its worker when the home page mounts, never while the build prerenders it. Node has no
 // `Worker` (and no window or document, as in src/prerender.test.tsx), so the pages are rendered with those globals
 // taken away: creating a worker during rendering would throw, and fail the build.
 import { afterEach, describe, expect, it, vi } from "vitest";
